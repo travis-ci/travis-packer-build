@@ -5,7 +5,7 @@ describe Travis::PackerBuild::Trigger do
 
   let(:api_token) { 'flubber' }
   let(:git_diff_files) { [] }
-  let(:here) { File.expand_path('../../../', __FILE__) }
+  let(:here) { File.expand_path('../../../../', __FILE__) }
   let(:fake_detector) { double('fake_detector') }
 
   let :argv do
