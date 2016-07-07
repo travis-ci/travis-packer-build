@@ -199,7 +199,7 @@ module Travis
             > Options that accept a `GITFUL_PATH` type expect the string
             > arguments to contain whitespace-separated tokens of the format:
             >
-            >     <git-repo-remote>:[prefix],[prefix...]
+            >     <git-repo-remote>::[prefix[@ref]],[prefix...]
             >
             > e.g.:
             >
