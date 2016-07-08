@@ -1,10 +1,6 @@
-require 'forwardable'
-
 module Travis
   module PackerBuild
     class PackerTemplate
-      extend Forwardable
-
       def initialize(filename, string)
         @name = File.basename(filename.sub(/.*::/, ''), '.yml')
         @filename = filename
