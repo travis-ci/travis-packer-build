@@ -8,7 +8,7 @@ describe Travis::PackerBuild::PackerTemplates do
   let :fake_packer_templates_path do
     instance_double(
       'Travis::PackerBuild::GitPath',
-      :fake_packer_templates_path,
+      :fake_packer_templates_path
     )
   end
 
@@ -18,7 +18,7 @@ describe Travis::PackerBuild::PackerTemplates do
         'Travis::PackerBuild::GitPath',
         :wizards_yml,
         namespaced_path: 'lol@bud.git::cave/wizards.yml',
-        show: "dont_even: []\nnorly: True\n"
+        show: "$,%\x0dont_even: []\nnorly: True\n"
       ),
       instance_double(
         'Travis::PackerBuild::GitPath',
@@ -37,7 +37,13 @@ describe Travis::PackerBuild::PackerTemplates do
 
   before :each do
     allow(fake_packer_templates_path).to receive(:files) do |pattern|
-      pattern.to_s =~ /\.yml$/ ? yml_files : []
+      pattern.source =~ /\\\.yml\$/ ? yml_files : []
     end
+  end
+
+  it 'allows for eaching over templates by name' do
+    all_templates = Array(subject.each)
+    expect(all_templates.length).to eq(1)
+    expect(all_templates.first.first).to eq('birthday_cake')
   end
 end

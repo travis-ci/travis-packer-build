@@ -46,7 +46,7 @@ module Travis
         parsed = Travis::PackerBuild::YamlLoader.load_string(file_contents)
         %w(variables builders provisioners).all? { |k| parsed.include?(k) }
       rescue => e
-        $stderr.puts "ERROR: #{e}\n#{e.backtrace.join("\n")}"
+        $stderr.puts "ERROR: #{e}\n#{e.backtrace.join("\n")}" if ENV['DEBUG']
         false
       end
     end
