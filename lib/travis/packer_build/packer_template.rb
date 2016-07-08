@@ -12,8 +12,6 @@ module Travis
       end
 
       attr_reader :name, :filename, :parsed
-
-      def_delegators :@parsed, :[], :each
     end
   end
 end

@@ -13,9 +13,10 @@ module Travis
         packer_templates.each do |_, template|
           log.info "Detecting type=shell template=#{template.name}"
           to_trigger << template.name if filenames.include?(template.filename)
-          to_trigger << template.name unless (
-            provisioner_files(template['provisioners'] || []) & filenames
-          ).empty?
+          intersection = provisioner_files(
+            template.parsed['provisioners'] || []
+          ) & filenames
+          to_trigger << template.name unless intersection.empty?
         end
 
         to_trigger.sort.uniq

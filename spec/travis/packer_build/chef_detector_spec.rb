@@ -60,12 +60,16 @@ describe Travis::PackerBuild::ChefDetector do
   end
 
   it 'detects when template changes' do
-    expect(subject.detect([
-                            instance_double(
-                              'Travis::PackerBuild::GitPath',
-                              path: 'world1-3.yml',
-                              namespaced_path: 'blorp::world1-3.yml'
-                            )
-                          ])).to eql(%w(world1-3))
+    expect(
+      subject.detect(
+        [
+          instance_double(
+            'Travis::PackerBuild::GitPath',
+            path: 'world1-3.yml',
+            namespaced_path: 'blorp::world1-3.yml'
+          )
+        ]
+      )
+    ).to eql(%w(world1-3))
   end
 end

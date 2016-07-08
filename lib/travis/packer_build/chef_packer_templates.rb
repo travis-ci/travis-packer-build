@@ -27,7 +27,7 @@ module Travis
         Travis::PackerBuild::PackerTemplates.new(
           packer_templates_path
         ).each do |_, t|
-          Array(t['provisioners']).each do |provisioner|
+          Array(t.parsed['provisioners']).each do |provisioner|
             next unless provisioner['type'] =~ /chef/
             next if Array(provisioner.fetch('run_list', [])).empty?
             loaded[t] = Travis::PackerBuild::ChefDependencyFinder.new(
