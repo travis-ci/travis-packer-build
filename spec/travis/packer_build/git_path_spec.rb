@@ -19,7 +19,18 @@ describe Travis::PackerBuild::GitPath do
           name: 'bork',
           url: 'no/no/no/no/no.git'
         )
-      ]
+      ],
+      checkout: true
+    )
+  end
+
+  let :fake_git_files do
+    %w(
+      some/enchanted/place/flower-patch
+      some/enchanted/place/flower-in-ur-guitar
+      some/enchanted/place/sing-in-falsetto-already
+      some/enchanted/place/why-are-you-wearing-that-tie
+      you/dont/even/want
     )
   end
 
@@ -27,6 +38,9 @@ describe Travis::PackerBuild::GitPath do
     allow(fake_git_repo).to receive(:show)
       .with('fafafaf', 'some/enchanted/place')
       .and_return("flowers\nunicorns\nn'at\n")
+    allow(fake_git_repo).to receive(:with_temp_working) { |&b| b.call }
+    allow(fake_git_repo).to receive(:ls_files)
+      .and_return(fake_git_files)
   end
 
   it 'has a path' do
@@ -51,5 +65,9 @@ describe Travis::PackerBuild::GitPath do
 
   it 'can show itself' do
     expect(subject.show).to eq("flowers\nunicorns\nn'at\n")
+  end
+
+  it 'can list all files prefixed with its path' do
+    expect(subject.files).to_not be_empty
   end
 end

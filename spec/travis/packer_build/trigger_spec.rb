@@ -19,6 +19,7 @@ describe Travis::PackerBuild::Trigger do
       --commit-range=fafafaf...afafafa
       --branch=twig
       --builders=bob,wendy,pickles
+      --request-interval=0
     )
   end
 
@@ -32,6 +33,9 @@ describe Travis::PackerBuild::Trigger do
     Faraday::Adapter::Test::Stubs.new
   end
 
+  let(:response_status) { 201 }
+  let(:response_body) { '{"yey":true}' }
+
   before :each do
     allow_any_instance_of(described_class)
       .to receive(:build_http).and_return(test_http)
@@ -44,7 +48,11 @@ describe Travis::PackerBuild::Trigger do
     http_stubs.post(
       '/repo/serious-business%2Fverybigapplication/requests'
     ) do |_env|
-      [201, { 'Content-Type' => 'application/json' }, '{"yey":true}']
+      [
+        response_status,
+        { 'Content-Type' => 'application/json' },
+        response_body
+      ]
     end
     allow(subject.send(:options)).to receive(:builders)
       .and_return(%w(fribble schnozzle))
@@ -59,6 +67,25 @@ describe Travis::PackerBuild::Trigger do
 
   it 'may be run via #run' do
     expect(subject.run(argv: argv)).to eq(0)
+  end
+
+  it 'makes no http requests on noop' do
+    expect(test_http).to_not receive(:post)
+    subject.run(argv: argv + %w(--noop))
+  end
+
+  context 'when response status is > 299' do
+    let(:response_status) { 403 }
+    let(:response_body) { '{"error":"there is no try"}' }
+
+    it 'counts it as an error' do
+      logged = []
+      allow(subject.send(:log)).to receive(:info) do |*args|
+        logged << args
+      end
+      subject.run(argv: argv)
+      expect(logged).to include(['All done! triggered=0 errored=2'])
+    end
   end
 
   describe 'requests' do
