@@ -6,10 +6,11 @@ require 'git'
 module Travis
   module PackerBuild
     class GitChangeFinder
-      def initialize(commit_range: %w(@ @), root_repo: '',
-                     clone_tmp: '', git_paths: [], git_logger: nil,
-                     dig_through_git_paths: false)
+      def initialize(commit_range: %w(@ @), root_repo_dir: '',
+                     root_repo: '', clone_tmp: '', git_paths: [],
+                     git_logger: nil, dig_through_git_paths: false)
         @commit_range = commit_range
+        @root_repo_dir = root_repo_dir
         @root_repo = root_repo
         @clone_tmp = clone_tmp
         @git_paths = git_paths

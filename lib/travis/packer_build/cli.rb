@@ -84,7 +84,8 @@ module Travis
         )
 
         if options.root_repo.nil? || options.root_repo.empty?
-          options.root_repo = options.packer_templates_path.first.repo.repo.path
+          options.root_repo_dir =
+            options.packer_templates_path.first.repo.repo.path
         end
         @setup = true
       end
@@ -95,6 +96,12 @@ module Travis
                   'Git remote of root repository to check commit range. ' \
                   'defaults to the first entry of --packer-templates-path') do |v|
             options.root_repo = v.strip
+          end
+
+          opts.on('-R GIT_DIR', '--root-repo-dir GIT_DIR',
+                  'Git dir of root repository to check commit range. ' \
+                  'defaults to the first entry of --packer-templates-path') do |v|
+            options.root_repo_dir = File.expand_path(v.strip)
           end
 
           opts.on('-P GITFUL_PATH', '--packer-templates-path GITFUL_PATH',
@@ -281,6 +288,7 @@ module Travis
       def git_change_finder
         @git_change_finder ||= Travis::PackerBuild::GitChangeFinder.new(
           commit_range: commit_range,
+          root_repo_dir: options.root_repo_dir,
           root_repo: options.root_repo,
           git_paths: options.packer_templates_path + options.chef_cookbook_path,
           clone_tmp: options.clone_tmp
