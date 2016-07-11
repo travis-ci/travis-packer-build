@@ -3,6 +3,13 @@ require 'tmpdir'
 module Travis
   module PackerBuild
     module ChefFakeRecipeMethods
+      def self.included(mod)
+        def mod.const_missing(name)
+          const_set(name, BlackHole)
+          BlackHole
+        end
+      end
+
       def include_recipe(name)
         @included_recipes ||= []
         @included_recipes << name
@@ -44,23 +51,16 @@ module Travis
         @node ||= ForeverHash.new
       end
 
-      class TravisPackerTemplates
-        def initialize(*)
-        end
-
-        def init!
-        end
-      end
-
-      def const_missing(*)
-        BlackHole
-      end
-
       class BlackHole
         def initialize(*)
         end
 
         def method_missing(*)
+          self
+        end
+
+        def self.method_missing(*)
+          self
         end
       end
 
@@ -70,15 +70,7 @@ module Travis
             @config ||= ForeverHash.new
             @config[key]
           end
-
-          def self.file_cache_path
-            Dir.tmpdir
-          end
         end
-
-        Log = Class.new(BlackHole)
-        VersionConstraint = Class.new(BlackHole)
-        Recipe = Class.new(BlackHole)
       end
 
       class ForeverHash < Hash

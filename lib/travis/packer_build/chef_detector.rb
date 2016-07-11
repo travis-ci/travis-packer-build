@@ -12,6 +12,7 @@ module Travis
       end
 
       def detect(git_paths)
+        return [] if git_paths.empty?
         filenames = git_paths.map(&:namespaced_path)
         to_trigger = []
 

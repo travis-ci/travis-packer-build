@@ -11,6 +11,7 @@ module Travis
     autoload :PackerTemplates, 'travis/packer_build/packer_templates'
     autoload :ShellDetector, 'travis/packer_build/shell_detector'
     autoload :Trigger, 'travis/packer_build/trigger'
+    autoload :VERSION, 'travis/packer_build/version'
     autoload :YamlLoader, 'travis/packer_build/yaml_loader'
   end
 end
