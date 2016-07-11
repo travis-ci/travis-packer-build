@@ -11,6 +11,32 @@ describe Travis::PackerBuild::RequestBuilder do
     )
   end
 
+  let(:requests) { subject.build(%w(larping cosplay)) }
+
+  it 'is has a body' do
+    requests.each do |_, request|
+      expect(request.body).to_not be_empty
+    end
+  end
+
+  it 'is json' do
+    requests.each do |_, request|
+      expect(request.headers['Content-Type']).to eq('application/json')
+    end
+  end
+
+  it 'specifies API version 3' do
+    requests.each do |_, request|
+      expect(request.headers['Travis-API-Version']).to eq('3')
+    end
+  end
+
+  it 'includes authorization' do
+    requests.each do |_, request|
+      expect(request.headers['Authorization']).to eq('token wherps')
+    end
+  end
+
   describe 'body' do
     let(:body) { subject.send(:body, 'flurb') }
 
