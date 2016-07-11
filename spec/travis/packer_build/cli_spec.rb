@@ -44,7 +44,7 @@ describe Travis::PackerBuild::Cli do
     allow(subject.send(:options))
       .to receive(:commit_range).and_return(%w(fafafaf afafafa))
     allow_any_instance_of(described_class)
-      .to receive(:root_repo_commit_range_diff_files).and_return(git_diff_files)
+      .to receive(:changed_files).and_return(git_diff_files)
     http_stubs.post(
       '/repo/serious-business%2Fverybigapplication/requests'
     ) do |_env|

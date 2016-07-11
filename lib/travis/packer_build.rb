@@ -1,20 +1,26 @@
 module Travis
   module PackerBuild
-    autoload :ChefCookbooks, 'travis/packer_build/chef_cookbooks'
-    autoload :ChefDependencyFinder, 'travis/packer_build/chef_dependency_finder'
-    autoload :ChefDetector, 'travis/packer_build/chef_detector'
-    autoload :ChefFakeRecipeMethods, 'travis/packer_build/chef_fake_recipe_methods'
-    autoload :ChefPackerTemplates, 'travis/packer_build/chef_packer_templates'
-    autoload :Cli, 'travis/packer_build/cli'
-    autoload :FileDetector, 'travis/packer_build/file_detector'
-    autoload :GitPath, 'travis/packer_build/git_path'
-    autoload :Options, 'travis/packer_build/options'
-    autoload :PackerTemplate, 'travis/packer_build/packer_template'
-    autoload :PackerTemplates, 'travis/packer_build/packer_templates'
-    autoload :Request, 'travis/packer_build/request'
-    autoload :RequestBuilder, 'travis/packer_build/request_builder'
-    autoload :ShellDetector, 'travis/packer_build/shell_detector'
-    autoload :VERSION, 'travis/packer_build/version'
-    autoload :YamlLoader, 'travis/packer_build/yaml_loader'
+    def self.libfile(basename)
+      "travis/packer_build/#{basename}"
+    end
+
+    autoload :ChefCookbooks, libfile('chef_cookbooks')
+    autoload :ChefDependencyFinder, libfile('chef_dependency_finder')
+    autoload :ChefDetector, libfile('chef_detector')
+    autoload :ChefFakeRecipeMethods, libfile('chef_fake_recipe_methods')
+    autoload :ChefPackerTemplates, libfile('chef_packer_templates')
+    autoload :Cli, libfile('cli')
+    autoload :FileDetector, libfile('file_detector')
+    autoload :GitChangeFinder, libfile('git_change_finder')
+    autoload :GitPath, libfile('git_path')
+    autoload :GitRemotePathParser, libfile('git_remote_path_parser')
+    autoload :Options, libfile('options')
+    autoload :PackerTemplate, libfile('packer_template')
+    autoload :PackerTemplates, libfile('packer_templates')
+    autoload :Request, libfile('request')
+    autoload :RequestBuilder, libfile('request_builder')
+    autoload :ShellDetector, libfile('shell_detector')
+    autoload :VERSION, libfile('version')
+    autoload :YamlLoader, libfile('yaml_loader')
   end
 end
