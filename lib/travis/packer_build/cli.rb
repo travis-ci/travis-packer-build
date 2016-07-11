@@ -3,7 +3,6 @@ require 'English'
 require 'fileutils'
 require 'json'
 require 'logger'
-require 'net/https'
 require 'optparse'
 require 'uri'
 
@@ -12,7 +11,7 @@ require 'git'
 
 module Travis
   module PackerBuild
-    class Trigger
+    class Cli
       def self.run!(argv: ARGV)
         new.run(argv: argv)
       end
@@ -54,9 +53,9 @@ module Travis
           end
 
           if response.headers['Content-Type'] =~ /\bjson\b/
-            puts JSON.parse(response.body).fetch('error', '???')
+            log.error JSON.parse(response.body).fetch('error', '???')
           else
-            puts response.body
+            log.error response.body
           end
           errored += 1
           ret = 1
@@ -69,23 +68,7 @@ module Travis
       private
 
       def build_requests
-        requests = []
-        triggerable_templates.each do |template|
-          request = Request.new.tap do |req|
-            req.url = File.join(
-              '/repo', URI.escape(options.target_repo_slug, '/'), 'requests'
-            )
-            req.body = JSON.dump(body(template))
-            req.headers = {
-              'Content-Type' => 'application/json',
-              'Accept' => 'application/json',
-              'Travis-API-Version' => '3',
-              'Authorization' => "token #{options.travis_api_token}"
-            }
-          end
-          requests << [template, request]
-        end
-        requests
+        request_builder.build(triggerable_templates)
       end
 
       def build_http
@@ -220,7 +203,7 @@ module Travis
       end
 
       def options
-        @options ||= Options.new.tap do |opts|
+        @options ||= Travis::PackerBuild::Options.new.tap do |opts|
           opts.root_repo = ENV.fetch('ROOT_REPO', '')
           opts.target_repo_slug = ENV.fetch(
             'TARGET_REPO_SLUG', 'travis-ci/packer-build'
@@ -335,30 +318,14 @@ module Travis
         ]
       end
 
-      def body(template)
-        {
-          message: ':lemon: :bomb: ' \
-            "commit-range=#{commit_range.join('...')}",
-          branch: template,
-          config: {
-            language: 'generic',
-            dist: 'trusty',
-            group: 'edge',
-            sudo: true,
-            env: {
-              matrix: options.builders.map { |b| "BUILDER=#{b}" }
-            },
-            install: [
-              "git clone --branch=#{options.branch} " \
-                'https://github.com/travis-ci/packer-templates.git',
-              'pushd packer-templates && ' \
-                "git checkout -qf #{commit_range.last} ; " \
-                'popd',
-              './packer-templates/bin/packer-build-install'
-            ],
-            script: "./packer-templates/bin/packer-build-script #{template}"
-          }
-        }
+      def request_builder
+        @request_builder ||= Travis::PackerBuild::RequestBuilder.new(
+          travis_api_token: options.travis_api_token,
+          target_repo_slug: options.target_repo_slug,
+          builders: options.builders,
+          commit_range: commit_range,
+          branch: options.branch
+        )
       end
 
       def triggerable_templates
@@ -440,18 +407,6 @@ module Travis
           l.level = Logger::FATAL
           l.level = Logger::DEBUG if ENV['DEBUG_GIT']
         end
-      end
-
-      class Options
-        attr_accessor :chef_cookbook_path, :packer_templates_path,
-                      :root_repo, :root_repo_dir, :target_repo_slug,
-                      :travis_api_url, :travis_api_token, :branch,
-                      :request_interval, :commit_range, :clone_tmp, :builders,
-                      :noop, :quiet
-      end
-
-      class Request
-        attr_accessor :url, :body, :headers
       end
     end
   end

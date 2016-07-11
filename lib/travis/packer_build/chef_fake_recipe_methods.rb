@@ -1,5 +1,3 @@
-require 'tmpdir'
-
 module Travis
   module PackerBuild
     module ChefFakeRecipeMethods

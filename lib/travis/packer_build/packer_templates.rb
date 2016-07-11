@@ -1,5 +1,3 @@
-require 'find'
-
 module Travis
   module PackerBuild
     class PackerTemplates
