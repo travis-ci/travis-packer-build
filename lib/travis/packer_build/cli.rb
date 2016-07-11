@@ -222,7 +222,7 @@ module Travis
 
           opts.branch = ENV.fetch('BRANCH', ENV.fetch('TRAVIS_BRANCH', ''))
           opts.clone_tmp = ENV.fetch(
-            'CLONE_TMP', File.join(Dir.tmpdir, 'downstreams-clones')
+            'CLONE_TMP', File.join(Dir.tmpdir, 'travis-packer-build')
           )
 
           opts.builders = ENV.fetch(
@@ -287,10 +287,13 @@ module Travis
 
       def git_change_finder
         @git_change_finder ||= Travis::PackerBuild::GitChangeFinder.new(
-          commit_range: commit_range,
-          root_repo_dir: options.root_repo_dir,
-          root_repo: options.root_repo,
-          git_paths: options.packer_templates_path + options.chef_cookbook_path,
+          root: Travis::PackerBuild::GitRoot.new(
+            commit_range: commit_range,
+            branch: options.branch,
+            dir: options.root_repo_dir,
+            remote: options.root_repo
+          ),
+          packer_templates_path: options.packer_templates_path,
           clone_tmp: options.clone_tmp
         )
       end

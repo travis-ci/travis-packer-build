@@ -14,6 +14,7 @@ module Travis
     autoload :GitChangeFinder, libfile('git_change_finder')
     autoload :GitPath, libfile('git_path')
     autoload :GitRemotePathParser, libfile('git_remote_path_parser')
+    autoload :GitRoot, libfile('git_root')
     autoload :Options, libfile('options')
     autoload :PackerTemplate, libfile('packer_template')
     autoload :PackerTemplates, libfile('packer_templates')
