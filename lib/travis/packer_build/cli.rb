@@ -3,7 +3,6 @@ require 'English'
 require 'fileutils'
 require 'json'
 require 'logger'
-require 'net/https'
 require 'optparse'
 require 'uri'
 
@@ -12,7 +11,7 @@ require 'git'
 
 module Travis
   module PackerBuild
-    class Trigger
+    class Cli
       def self.run!(argv: ARGV)
         new.run(argv: argv)
       end
@@ -54,9 +53,9 @@ module Travis
           end
 
           if response.headers['Content-Type'] =~ /\bjson\b/
-            puts JSON.parse(response.body).fetch('error', '???')
+            log.error JSON.parse(response.body).fetch('error', '???')
           else
-            puts response.body
+            log.error response.body
           end
           errored += 1
           ret = 1

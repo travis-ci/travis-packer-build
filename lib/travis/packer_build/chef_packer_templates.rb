@@ -1,6 +1,3 @@
-require 'find'
-require 'yaml'
-
 module Travis
   module PackerBuild
     class ChefPackerTemplates

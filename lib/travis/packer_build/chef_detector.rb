@@ -1,7 +1,3 @@
-require 'find'
-require 'thread'
-require 'yaml'
-
 module Travis
   module PackerBuild
     class ChefDetector

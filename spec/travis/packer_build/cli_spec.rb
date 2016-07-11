@@ -1,6 +1,6 @@
 require 'travis/packer_build'
 
-describe Travis::PackerBuild::Trigger do
+describe Travis::PackerBuild::Cli do
   subject { described_class.new }
 
   let(:api_token) { 'flubber' }
