@@ -61,26 +61,5 @@ describe Travis::PackerBuild::RequestBuilder do
       expect(body['config']['env']['matrix'])
         .to eq(%w(BUILDER=blastoise BUILDER=bulbasaur))
     end
-
-    it 'contains an install step that clones packer-templates' do
-      expect(body['config']['install']).to include(
-        /git clone.*packer-templates\.git/
-      )
-      expect(body['config']['install']).to include(
-        /git checkout -qf afafafa/
-      )
-    end
-
-    it 'contains an install step that runs bin/packer-build-install' do
-      expect(body['config']['install']).to include(
-        %r{\./packer-templates/bin/packer-build-install}
-      )
-    end
-
-    it 'contains a script step that runs bin/packer-build-script' do
-      expect(body['config']['script']).to eq(
-        ['./packer-templates/bin/packer-build-script flurb']
-      )
-    end
   end
 end
