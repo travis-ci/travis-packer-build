@@ -40,6 +40,23 @@ describe Travis::PackerBuild::Cli do
   let(:response_status) { 201 }
   let(:response_body) { '{"yey":true}' }
 
+  let :fake_templates do
+    [
+      instance_double(
+        'Travis::PackerBuild::PackerTemplate',
+        :wooker,
+        name: 'wooker',
+        filename: 'wooker.yml'
+      ),
+      instance_double(
+        'Travis::PackerBuild::PackerTemplate',
+        :dippity,
+        name: 'dippity',
+        filename: 'dippity.json'
+      )
+    ]
+  end
+
   before :each do
     allow_any_instance_of(described_class)
       .to receive(:build_http).and_return(test_http)
@@ -64,7 +81,7 @@ describe Travis::PackerBuild::Cli do
     allow(subject.send(:options)).to receive(:builders)
       .and_return(%w(fribble schnozzle))
     allow(subject).to receive(:detectors).and_return([fake_detector])
-    allow(fake_detector).to receive(:detect).and_return(%w(wooker dippity))
+    allow(fake_detector).to receive(:detect).and_return(fake_templates)
   end
 
   it 'is helpful' do

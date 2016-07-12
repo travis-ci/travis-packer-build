@@ -11,7 +11,24 @@ describe Travis::PackerBuild::RequestBuilder do
     )
   end
 
-  let(:requests) { subject.build(%w(larping cosplay)) }
+  let :fake_templates do
+    [
+      instance_double(
+        'Travis::PackerBuild::PackerTemplate',
+        :larping,
+        name: 'larping',
+        filename: 'larping.json'
+      ),
+      instance_double(
+        'Travis::PackerBuild::PackerTemplate',
+        :flurb,
+        name: 'flurb',
+        filename: 'flurb.yml'
+      )
+    ]
+  end
+
+  let(:requests) { subject.build(fake_templates) }
 
   it 'is has a body' do
     requests.each do |_, request|
@@ -38,7 +55,7 @@ describe Travis::PackerBuild::RequestBuilder do
   end
 
   describe 'body' do
-    let(:body) { subject.send(:body, 'flurb') }
+    let(:body) { subject.send(:body, fake_templates.last) }
 
     it 'has a message with commit' do
       expect(body['message']).to match(/commit-range=fafafaf\.\.\.afafafa/)

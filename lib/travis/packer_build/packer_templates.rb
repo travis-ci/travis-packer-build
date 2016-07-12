@@ -33,7 +33,7 @@ module Travis
 
       def packer_template_files
         files = packer_templates_path.map do |entry|
-          entry.files(/.*\.yml$/).select do |p|
+          entry.files(/.*\.(yml|json)$/).select do |p|
             packer_template?(p.show)
           end
         end

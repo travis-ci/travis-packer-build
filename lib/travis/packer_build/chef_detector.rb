@@ -17,16 +17,16 @@ module Travis
 
         packer_templates.each do |template, run_list_cookbooks|
           log.info "Detecting type=chef template=#{template.name}"
-          to_trigger << template.name if filenames.include?(template.filename)
+          to_trigger << template if filenames.include?(template.filename)
 
           run_list_cookbooks.each do |cb|
             cb_files = Array(cookbooks.files(cb)).map(&:namespaced_path)
             next if cb_files.empty?
-            to_trigger << template.name unless (filenames & cb_files).empty?
+            to_trigger << template unless (filenames & cb_files).empty?
           end
         end
 
-        to_trigger.sort.uniq
+        to_trigger.sort_by(&:name).uniq(&:name)
       end
 
       private
