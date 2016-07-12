@@ -2,5 +2,5 @@
 libdir = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift(libdir) unless $LOAD_PATH.include?(libdir)
 
-require 'travis/packer_build'
+require 'travis/packer_build/cli'
 exit Travis::PackerBuild::Cli.run!

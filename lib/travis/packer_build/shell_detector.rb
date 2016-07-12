@@ -1,3 +1,5 @@
+require_relative 'packer_templates'
+
 module Travis
   module PackerBuild
     class ShellDetector

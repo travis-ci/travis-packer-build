@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/yaml_loader'
 
 describe Travis::PackerBuild::YamlLoader do
   subject { described_class }

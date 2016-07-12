@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/chef_detector'
 
 describe Travis::PackerBuild::ChefDetector do
   subject do
@@ -17,7 +17,7 @@ describe Travis::PackerBuild::ChefDetector do
 
   let(:fake_log) { instance_double('Logger', info: true) }
 
-  let(:fake_packer_templates) do
+  let :fake_packer_templates do
     {
       instance_double(
         'Travis::PackerBuild::PackerTemplate',

@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/shell_detector'
 
 describe Travis::PackerBuild::ShellDetector do
   subject { described_class.new([fake_packer_templates_path], fake_log) }

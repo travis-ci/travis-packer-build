@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/chef_dependency_finder'
 
 describe Travis::PackerBuild::ChefDependencyFinder do
   subject do

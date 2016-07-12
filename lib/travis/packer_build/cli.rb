@@ -1,13 +1,20 @@
 require 'English'
 
-require 'fileutils'
 require 'json'
 require 'logger'
 require 'optparse'
 require 'uri'
 
 require 'faraday'
-require 'git'
+
+require_relative 'chef_detector'
+require_relative 'file_detector'
+require_relative 'git_change_finder'
+require_relative 'git_remote_path_parser'
+require_relative 'git_root'
+require_relative 'options'
+require_relative 'request_builder'
+require_relative 'shell_detector'
 
 module Travis
   module PackerBuild
@@ -78,8 +85,13 @@ module Travis
       def setup(argv)
         return if @setup
         parse_args(argv)
-        options.packer_templates_path ||= default_packer_templates_path
-        options.chef_cookbook_path ||= default_chef_cookbook_path
+        options.packer_templates_path ||= git_remote_path_parser.parse(
+          default_packer_templates_path_string
+        )
+        options.chef_cookbook_path ||= git_remote_path_parser.parse(
+          default_chef_cookbook_path_string
+        )
+
         if options.root_repo.nil? || options.root_repo.empty?
           options.root_repo_dir =
             options.packer_templates_path.first.repo.repo.path
@@ -97,16 +109,14 @@ module Travis
 
           opts.on('-R GIT_DIR', '--root-repo-dir GIT_DIR',
                   'Git dir of root repository to check commit range. ' \
-                  'defaults to the first entry of --packer-template-path') do |v|
+                  'defaults to the first entry of --packer-templates-path') do |v|
             options.root_repo_dir = File.expand_path(v.strip)
           end
 
           opts.on('-P GITFUL_PATH', '--packer-templates-path GITFUL_PATH',
                   'Packer templates path. ' \
                   "default=#{default_packer_templates_path_string}") do |v|
-            options.packer_templates_path = parse_git_remote_path(
-              v, options.clone_tmp
-            )
+            options.packer_templates_path = git_remote_path_parser.parse(v)
           end
 
           opts.on('-C COMMIT_RANGE', '--commit-range COMMIT_RANGE',
@@ -130,9 +140,7 @@ module Travis
           opts.on('-c GITFUL_PATH', '--chef-cookbook-path GITFUL_PATH',
                   'Cookbook path. ' \
                   "default=#{default_chef_cookbook_path_string}") do |v|
-            options.chef_cookbook_path = parse_git_remote_path(
-              v, options.clone_tmp
-            )
+            options.chef_cookbook_path = git_remote_path_parser.parse(v)
           end
 
           opts.on('-t REPO', '--target-repo-slug REPO',
@@ -165,6 +173,12 @@ module Travis
             options.builders = v.split(',').map(&:strip)
           end
 
+          opts.on('-t JSON_OR_FILENAME', '--body-template JSON_OR_FILENAME',
+                  'JSON literal or filename to load as request body ' \
+                  "template.  default=#{options.body_template}") do |v|
+            options.body_template = v.strip
+          end
+
           opts.separator 'Usual Suspects'
 
           opts.on('-n', '--noop', 'Do not do') do
@@ -176,27 +190,27 @@ module Travis
           end
 
           opts.on_tail('-h', '--help', 'Show this message') do
-            puts opts
-            puts "\n\n"
-            puts <<-EOF.gsub(/^\s+> ?/, '')
-            > Options that accept a `GITFUL_PATH` type expect the string
-            > arguments to contain whitespace-separated tokens of the format:
-            >
-            >     <git-repo-remote>::[prefix[@ref]],[prefix...]
-            >
-            > e.g.:
-            >
-            >     https://github.com/repo/remote.git::cookbooks@master,ci_environment@precise-stable
-            >     git@github.com:other/remote.git::
-            >
-            > This allows for arguments like packer templates paths and cookbook
-            > paths to contain multiple entries for a given git repository,
-            > while retaining a prefix "namespace" for purposes of matching file
-            > paths.
-            >
-            > Leading '/' characters are automatically stripped from repository
-            > prefixes, as git lists files without leading slashes.
-          EOF
+            puts opts unless ENV['QUIET']
+            puts "\n\n" unless ENV['QUIET']
+            puts <<-EOF.gsub(/^\s+> ?/, '') unless ENV['QUIET']
+              > Options that accept a `GITFUL_PATH` type expect the string
+              > arguments to contain whitespace-separated tokens of the format:
+              >
+              >     <git-repo-remote>::[prefix[@ref]],[prefix...]
+              >
+              > e.g.:
+              >
+              >     https://github.com/repo/remote.git::cookbooks@master,ci_environment@precise-stable
+              >     git@github.com:other/remote.git::
+              >
+              > This allows for arguments like packer templates paths and cookbook
+              > paths to contain multiple entries for a given git repository,
+              > while retaining a prefix "namespace" for purposes of matching file
+              > paths.
+              >
+              > Leading '/' characters are automatically stripped from repository
+              > prefixes, as git lists files without leading slashes.
+            EOF
             exit 0
           end
         end.parse!(argv)
@@ -223,7 +237,7 @@ module Travis
 
           opts.branch = ENV.fetch('BRANCH', ENV.fetch('TRAVIS_BRANCH', ''))
           opts.clone_tmp = ENV.fetch(
-            'CLONE_TMP', File.join(Dir.tmpdir, 'downstreams-clones')
+            'CLONE_TMP', File.join(Dir.tmpdir, 'travis-packer-build')
           )
 
           opts.builders = ENV.fetch(
@@ -232,74 +246,26 @@ module Travis
 
           opts.request_interval = Integer(ENV.fetch('REQUEST_INTERVAL', '1'))
 
+          opts.body_template = ENV.fetch('BODY_TEMPLATE', '{}')
+
           opts.noop = ENV['NOOP'] == '1'
           opts.quiet = ENV['QUIET'] == '1'
         end
       end
 
-      def parse_git_remote_path(string, clone_tmp)
-        entries = string.split(/\s+/).map do |segment|
-          repo_remote, paths = segment.split('::')
-          paths = '/' unless paths
-          local_clone = File.join(repo_remote, '.git')
-
-          if File.directory?(local_clone)
-            repo_remote = Git.bare(local_clone, log: git_logger).remotes
-                             .select { |remote| remote.name == 'origin' }
-                             .first.url
-          else
-            local_clone = File.join(
-              clone_tmp, clone_basename(repo_remote)
-            )
-          end
-
-          if File.directory?(local_clone)
-            git = Git.bare(local_clone, log: git_logger)
-            git.fetch
-          else
-            git = Git.clone(repo_remote, local_clone, bare: true)
-          end
-
-          paths.split(',').map do |path_entry|
-            entry, ref = path_entry.split('@').map(&:strip)
-            ref = '@' unless ref
-            Travis::PackerBuild::GitPath.new(git, entry.sub(%r{^/}, ''), ref)
-          end
-        end
-
-        entries.flatten
-      end
-
-      def default_packer_templates_path
-        parse_git_remote_path(
-          default_packer_templates_path_string, options.clone_tmp
-        )
+      def git_remote_path_parser
+        @git_remote_path_parser ||=
+          Travis::PackerBuild::GitRemotePathParser.new(
+            clone_tmp: options.clone_tmp
+          )
       end
 
       def default_packer_templates_path_string
-        ENV.fetch(
-          'PACKER_TEMPLATES_PATH',
-          "#{File.expand_path('../../../', __FILE__)}::"
-        )
-      end
-
-      def default_chef_cookbook_path
-        parse_git_remote_path(
-          default_chef_cookbook_path_string, options.clone_tmp
-        )
+        ENV.fetch('PACKER_TEMPLATES_PATH', "#{Dir.getwd}::")
       end
 
       def default_chef_cookbook_path_string
-        ENV.fetch(
-          'CHEF_COOKBOOK_PATH',
-          "#{File.expand_path('../../../', __FILE__)}::cookbooks"
-        )
-      end
-
-      def default_root_repo_dir
-        File.expand_path(
-          ENV.fetch('ROOT_REPO_DIR', File.join(Dir.getwd, '.git'))
-        )
+        ENV.fetch('CHEF_COOKBOOK_PATH', "#{Dir.getwd}::cookbooks")
       end
 
       def detectors
@@ -324,7 +290,8 @@ module Travis
           target_repo_slug: options.target_repo_slug,
           builders: options.builders,
           commit_range: commit_range,
-          branch: options.branch
+          branch: options.branch,
+          body_template: options.body_template
         )
       end
 
@@ -333,35 +300,20 @@ module Travis
       end
 
       def changed_files
-        root_repo_commit_range_diff_files
+        git_change_finder.find
       end
 
-      def root_repo_commit_range_diff_files
-        root_repo_git.gtree(commit_range.first)
-                     .diff(commit_range.last)
-                     .name_status.select { |_, status| %w(M A).include?(status) }
-                     .map do |f, _|
-          Travis::PackerBuild::GitPath.new(root_repo_git, f, commit_range.last)
-        end
-      end
-
-      def root_repo_git
-        Git.bare(root_repo_dir, log: git_logger)
-      end
-
-      def root_repo_dir
-        return options.root_repo_dir if options.root_repo_dir &&
-                                        File.exist?(options.root_repo_dir)
-        clone_root_repo
-      end
-
-      def root_repo_origin_url
-        root_repo_git.remotes
-                     .select { |remote| remote.name == 'origin' }.first.url
-      end
-
-      def clone_basename(repo_remote)
-        URI.escape(repo_remote, '@:/.') + '.git'
+      def git_change_finder
+        @git_change_finder ||= Travis::PackerBuild::GitChangeFinder.new(
+          root: Travis::PackerBuild::GitRoot.new(
+            commit_range: commit_range,
+            branch: options.branch,
+            dir: options.root_repo_dir,
+            remote: options.root_repo
+          ),
+          packer_templates_path: options.packer_templates_path,
+          clone_tmp: options.clone_tmp
+        )
       end
 
       def commit_range
@@ -373,25 +325,6 @@ module Travis
                           end
       end
 
-      def clone_root_repo
-        dest = File.join(clone_tmp, '__root__.git')
-
-        if File.directory?(dest)
-          Git.bare(dest, log: git_logger).fetch('origin')
-          return dest
-        end
-
-        Git.clone(options.root_repo, dest, bare: true)
-
-        dest
-      end
-
-      def clone_tmp
-        return @clone_tmp if @clone_tmp && File.directory?(@clone_tmp)
-        FileUtils.mkdir_p(options.clone_tmp)
-        @clone_tmp = options.clone_tmp
-      end
-
       def log
         @log ||= Logger.new($stdout).tap do |l|
           l.level = Logger::FATAL if options.quiet
@@ -399,13 +332,6 @@ module Travis
           l.formatter = proc do |_, _, progname, msg|
             "#{progname}: #{msg}\n"
           end
-        end
-      end
-
-      def git_logger
-        @git_logger ||= Logger.new($stderr).tap do |l|
-          l.level = Logger::FATAL
-          l.level = Logger::DEBUG if ENV['DEBUG_GIT']
         end
       end
     end

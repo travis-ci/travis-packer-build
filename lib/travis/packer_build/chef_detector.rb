@@ -1,3 +1,6 @@
+require_relative 'chef_cookbooks'
+require_relative 'chef_packer_templates'
+
 module Travis
   module PackerBuild
     class ChefDetector

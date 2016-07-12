@@ -1,3 +1,5 @@
+require_relative 'yaml_loader'
+
 module Travis
   module PackerBuild
     class PackerTemplate

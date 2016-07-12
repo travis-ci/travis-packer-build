@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/packer_templates'
 
 describe Travis::PackerBuild::PackerTemplates do
   subject do

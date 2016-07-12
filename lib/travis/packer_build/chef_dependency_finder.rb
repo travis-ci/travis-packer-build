@@ -1,5 +1,7 @@
 require 'thread'
 
+require_relative 'chef_fake_recipe_methods'
+
 module Travis
   module PackerBuild
     class ChefDependencyFinder
