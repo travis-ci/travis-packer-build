@@ -2,7 +2,7 @@ require 'travis/packer_build/options'
 
 describe Travis::PackerBuild::Options do
   %w(
-    body_template
+    body_json_tmpl
     branch
     builders
     chef_cookbook_path
