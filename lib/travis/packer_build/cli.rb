@@ -173,6 +173,12 @@ module Travis
             options.builders = v.split(',').map(&:strip)
           end
 
+          opts.on('-t JSON_OR_FILENAME', '--body-template JSON_OR_FILENAME',
+                  'JSON literal or filename to load as request body ' \
+                  "template.  default=#{options.body_template}") do |v|
+            options.body_template = v.strip
+          end
+
           opts.separator 'Usual Suspects'
 
           opts.on('-n', '--noop', 'Do not do') do
@@ -184,27 +190,27 @@ module Travis
           end
 
           opts.on_tail('-h', '--help', 'Show this message') do
-            puts opts
-            puts "\n\n"
-            puts <<-EOF.gsub(/^\s+> ?/, '')
-            > Options that accept a `GITFUL_PATH` type expect the string
-            > arguments to contain whitespace-separated tokens of the format:
-            >
-            >     <git-repo-remote>::[prefix[@ref]],[prefix...]
-            >
-            > e.g.:
-            >
-            >     https://github.com/repo/remote.git::cookbooks@master,ci_environment@precise-stable
-            >     git@github.com:other/remote.git::
-            >
-            > This allows for arguments like packer templates paths and cookbook
-            > paths to contain multiple entries for a given git repository,
-            > while retaining a prefix "namespace" for purposes of matching file
-            > paths.
-            >
-            > Leading '/' characters are automatically stripped from repository
-            > prefixes, as git lists files without leading slashes.
-          EOF
+            puts opts unless ENV['QUIET']
+            puts "\n\n" unless ENV['QUIET']
+            puts <<-EOF.gsub(/^\s+> ?/, '') unless ENV['QUIET']
+              > Options that accept a `GITFUL_PATH` type expect the string
+              > arguments to contain whitespace-separated tokens of the format:
+              >
+              >     <git-repo-remote>::[prefix[@ref]],[prefix...]
+              >
+              > e.g.:
+              >
+              >     https://github.com/repo/remote.git::cookbooks@master,ci_environment@precise-stable
+              >     git@github.com:other/remote.git::
+              >
+              > This allows for arguments like packer templates paths and cookbook
+              > paths to contain multiple entries for a given git repository,
+              > while retaining a prefix "namespace" for purposes of matching file
+              > paths.
+              >
+              > Leading '/' characters are automatically stripped from repository
+              > prefixes, as git lists files without leading slashes.
+            EOF
             exit 0
           end
         end.parse!(argv)
@@ -239,6 +245,8 @@ module Travis
           ).split(',').map(&:strip)
 
           opts.request_interval = Integer(ENV.fetch('REQUEST_INTERVAL', '1'))
+
+          opts.body_template = ENV.fetch('BODY_TEMPLATE', '{}')
 
           opts.noop = ENV['NOOP'] == '1'
           opts.quiet = ENV['QUIET'] == '1'
@@ -282,7 +290,8 @@ module Travis
           target_repo_slug: options.target_repo_slug,
           builders: options.builders,
           commit_range: commit_range,
-          branch: options.branch
+          branch: options.branch,
+          body_template: options.body_template
         )
       end
 

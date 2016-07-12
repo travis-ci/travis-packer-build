@@ -2,6 +2,8 @@ require 'faraday'
 
 require 'travis/packer_build/cli'
 
+Halp = Class.new(StandardError)
+
 describe Travis::PackerBuild::Cli do
   subject { described_class.new }
 
@@ -47,19 +49,27 @@ describe Travis::PackerBuild::Cli do
       .to receive(:commit_range).and_return(%w(fafafaf afafafa))
     allow_any_instance_of(described_class)
       .to receive(:changed_files).and_return(git_diff_files)
-    http_stubs.post(
-      '/repo/serious-business%2Fverybigapplication/requests'
-    ) do |_env|
-      [
-        response_status,
-        { 'Content-Type' => 'application/json' },
-        response_body
-      ]
+    %w(
+      /repo/serious-business%2Fverybigapplication/requests
+      /repo/travis-ci%2Fpacker-build/requests
+    ).each do |post_path|
+      http_stubs.post(post_path) do |_env|
+        [
+          response_status,
+          { 'Content-Type' => 'application/json' },
+          response_body
+        ]
+      end
     end
     allow(subject.send(:options)).to receive(:builders)
       .and_return(%w(fribble schnozzle))
     allow(subject).to receive(:detectors).and_return([fake_detector])
     allow(fake_detector).to receive(:detect).and_return(%w(wooker dippity))
+  end
+
+  it 'is helpful' do
+    allow(subject).to receive(:exit).and_raise(Halp)
+    expect { subject.run(argv: %w(--help)) }.to raise_error(Halp)
   end
 
   it 'may be run via .run!' do
