@@ -91,7 +91,7 @@ module Travis
             >   packer build -only=${BUILDER} <(
             >     ruby -rjson -ryaml -rerb -e "
             >       puts JSON.pretty_generate(
-            >         YAML.load(ERB.new($stdin.read).result)
+            >         YAML.load(ERB.new(STDIN.read).result)
             >       )
             >     " < %{template_filename}
             >   ) ;
