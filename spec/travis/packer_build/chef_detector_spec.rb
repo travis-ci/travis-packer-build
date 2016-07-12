@@ -27,7 +27,7 @@ describe Travis::PackerBuild::ChefDetector do
       instance_double(
         'Travis::PackerBuild::PackerTemplate',
         name: 'world8-2',
-        filename: 'blorp::world8-2.yml'
+        filename: 'blorp::world8-2.json'
       ) => %w(wendy morton ludwig lemmy)
     }
   end
@@ -69,7 +69,7 @@ describe Travis::PackerBuild::ChefDetector do
             namespaced_path: 'blorp::world1-3.yml'
           )
         ]
-      )
+      ).map(&:name)
     ).to eql(%w(world1-3))
   end
 end

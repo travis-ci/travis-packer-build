@@ -34,7 +34,7 @@ module Travis
 
         build_requests.each do |template, request|
           if options.noop
-            log.info "Not triggering template=#{template} " \
+            log.info "Not triggering template=#{template.name} " \
                      "repo=#{options.target_repo_slug}"
             next
           end
@@ -53,7 +53,7 @@ module Travis
           end
 
           if response.status < 299
-            log.info "Triggered template=#{template} " \
+            log.info "Triggered template=#{template.name} " \
                      "repo=#{options.target_repo_slug}"
             triggered += 1
             next
@@ -296,7 +296,8 @@ module Travis
       end
 
       def triggerable_templates
-        detectors.map { |d| d.detect(changed_files) }.flatten.sort.uniq
+        detectors.map { |d| d.detect(changed_files) }
+                 .flatten.sort_by(&:name).uniq(&:name)
       end
 
       def changed_files

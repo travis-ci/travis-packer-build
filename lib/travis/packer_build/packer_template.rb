@@ -4,7 +4,7 @@ module Travis
   module PackerBuild
     class PackerTemplate
       def initialize(filename, string)
-        @name = File.basename(filename.sub(/.*::/, ''), '.yml')
+        @name = File.basename(filename.sub(/.*::/, '')).sub(/\.(yml|json)/, '')
         @filename = filename
         @parsed = Travis::PackerBuild::YamlLoader.load_string(string)
       end

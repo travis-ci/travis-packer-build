@@ -15,14 +15,14 @@ module Travis
 
         packer_templates.each do |_, template|
           log.info "Detecting type=file template=#{template.name}"
-          to_trigger << template.name if filenames.include?(template.filename)
+          to_trigger << template if filenames.include?(template.filename)
           intersection = provisioner_files(
             template.parsed['provisioners'] || []
           ) & filenames
-          to_trigger << template.name unless intersection.empty?
+          to_trigger << template unless intersection.empty?
         end
 
-        to_trigger.sort.uniq
+        to_trigger.sort_by(&:name).uniq(&:name)
       end
 
       private

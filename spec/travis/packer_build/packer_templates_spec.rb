@@ -12,7 +12,7 @@ describe Travis::PackerBuild::PackerTemplates do
     )
   end
 
-  let :yml_files do
+  let :template_files do
     [
       instance_double(
         'Travis::PackerBuild::GitPath',
@@ -23,8 +23,8 @@ describe Travis::PackerBuild::PackerTemplates do
       instance_double(
         'Travis::PackerBuild::GitPath',
         :witches_yml,
-        namespaced_path: 'lol@bud.git::coven/witches.yml',
-        show: "variables: no\nbuilders: maybe\nlol: nope\n"
+        namespaced_path: 'lol@bud.git::coven/witches.json',
+        show: '{"variables": "no", "builders": "maybe", "lol": "nope"}'
       ),
       instance_double(
         'Travis::PackerBuild::GitPath',
@@ -37,7 +37,7 @@ describe Travis::PackerBuild::PackerTemplates do
 
   before :each do
     allow(fake_packer_templates_path).to receive(:files) do |pattern|
-      pattern.source =~ /\\\.yml\$/ ? yml_files : []
+      pattern.source =~ /\\\.\(yml\|json\)\$/ ? template_files : []
     end
   end
 

@@ -28,7 +28,7 @@ describe Travis::PackerBuild::ShellDetector do
       'veryspecial' => instance_double(
         'Travis::PackerBuild::PackerTemplate', :veryspecial,
         name: 'breads',
-        filename: 'breads.yml',
+        filename: 'breads.json',
         parsed: {
           'provisioners' => [
             {
@@ -95,7 +95,7 @@ describe Travis::PackerBuild::ShellDetector do
             namespaced_path: "boing:#{p}"
           )
         end
-      )
+      ).map(&:name)
     ).to eql(%w(breads cakes))
   end
 end

@@ -48,19 +48,18 @@ module Travis
           ret['message'], ':bomb: commit-range=%{commit_range_string}',
           template
         )
-        ret['branch'] = interpolated_value(ret['branch'], template, template)
+        ret['branch'] = interpolated_value(
+          ret['branch'], template.name, template
+        )
         ret['config'] ||= {}
         ret['config']['language'] = interpolated_value(
-          ret['config']['language'], 'generic',
-          template
+          ret['config']['language'], 'generic', template
         )
         ret['config']['dist'] = interpolated_value(
-          ret['config']['dist'], 'trusty',
-          template
+          ret['config']['dist'], 'trusty', template
         )
         ret['config']['group'] = interpolated_value(
-          ret['config']['group'], 'edge',
-          template
+          ret['config']['group'], 'edge', template
         )
         ret['config']['sudo'] =
           ret['config'].key?('sudo') ? ret['config']['sudo'] : true
@@ -69,7 +68,7 @@ module Travis
 
         if ret['config']['env'].key?('matrix')
           ret['config']['env']['matrix'].each_with_index do |v, i|
-            ret['config']['env']['matrix'][i] = v % body_vars
+            ret['config']['env']['matrix'][i] = v % body_vars(template)
           end
         else
           ret['config']['env']['matrix'] = builders.map { |b| "BUILDER=#{b}" }
@@ -86,7 +85,21 @@ module Travis
 
         ret['config']['script'] = Array(ret['config']['script'])
         if ret['config']['script'].empty?
-          ret['config']['script'] = ['echo still here']
+          ret['config']['script'] = [
+            <<-EOF.gsub(/^\s+> ?/, '').split("\n").map(&:strip).join(' ')
+            > if [[ %{template_filename} =~ yml ]] ; then
+            >   packer build -only=${BUILDER} <(
+            >     ruby -rjson -ryaml -rerb -e "
+            >       puts JSON.pretty_generate(
+            >         YAML.load(ERB.new(STDIN.read).result)
+            >       )
+            >     " < %{template_filename}
+            >   ) ;
+            > else
+            >   packer build -only=${BUILDER} %{template_filename} ;
+            > fi
+            EOF
+          ]
         end
 
         ret['config']['script'].each_with_index do |v, i|
@@ -107,7 +120,8 @@ module Travis
           commit_range_first: commit_range.first,
           commit_range_last: commit_range.last,
           branch: branch,
-          template: template
+          template_name: template.name,
+          template_filename: template.filename
         }
       end
 

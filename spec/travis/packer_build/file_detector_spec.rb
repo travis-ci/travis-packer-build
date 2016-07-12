@@ -25,7 +25,7 @@ describe Travis::PackerBuild::FileDetector do
       'veryspecial' => instance_double(
         'Travis::PackerBuild::PackerTemplate', :veryspecial,
         name: 'veryspecial',
-        filename: 'veryspecial.yml',
+        filename: 'veryspecial.json',
         parsed: {
           'provisioners' => [
             {
@@ -91,7 +91,7 @@ describe Travis::PackerBuild::FileDetector do
             namespaced_path: "flimflam:#{p}"
           )
         end
-      )
+      ).map(&:name)
     ).to eql(%w(baseybase veryspecial))
   end
 end
