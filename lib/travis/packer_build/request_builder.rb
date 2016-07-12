@@ -8,13 +8,13 @@ module Travis
     class RequestBuilder
       def initialize(travis_api_token: '', target_repo_slug: '',
                      builders: %w(), commit_range: %w(@ @),
-                     branch: '', body_template: '{}')
+                     branch: '', body_json_tmpl: '{}')
         @travis_api_token = travis_api_token
         @target_repo_slug = target_repo_slug
         @builders = builders
         @commit_range = commit_range
         @branch = branch
-        @body_template = load_body_template(body_template)
+        @body_json_tmpl = load_body_json_tmpl(body_json_tmpl)
       end
 
       def build(triggerable_templates)
@@ -40,10 +40,10 @@ module Travis
       private
 
       attr_reader :travis_api_token, :target_repo_slug, :builders
-      attr_reader :commit_range, :branch, :body_template
+      attr_reader :commit_range, :branch, :body_json_tmpl
 
       def body(template)
-        ret = Marshal.load(Marshal.dump(body_template || {}))
+        ret = Marshal.load(Marshal.dump(body_json_tmpl || {}))
         ret['message'] = interpolated_value(
           ret['message'], ':bomb: commit-range=%{commit_range_string}',
           template
@@ -120,7 +120,7 @@ module Travis
         }
       end
 
-      def load_body_template(hashstring)
+      def load_body_json_tmpl(hashstring)
         return hashstring if hashstring.respond_to?(:key)
         return JSON.parse(File.read(hashstring)) if File.exist?(hashstring)
         JSON.parse(hashstring)
