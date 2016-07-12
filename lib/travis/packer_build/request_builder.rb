@@ -77,14 +77,7 @@ module Travis
 
         ret['config']['install'] = Array(ret['config']['install'])
         if ret['config']['install'].empty?
-          ret['config']['install'] = [
-            'git clone --branch=%{branch} ' \
-            'https://github.com/travis-ci/packer-templates.git',
-            'pushd packer-templates && ' \
-            'git checkout -qf %{commit_range_last} ; ' \
-            'popd',
-            './packer-templates/bin/packer-build-install'
-          ]
+          ret['config']['install'] = ['echo ohai']
         end
 
         ret['config']['install'].each_with_index do |v, i|
@@ -93,9 +86,7 @@ module Travis
 
         ret['config']['script'] = Array(ret['config']['script'])
         if ret['config']['script'].empty?
-          ret['config']['script'] = [
-            './packer-templates/bin/packer-build-script %{template}'
-          ]
+          ret['config']['script'] = ['echo still here']
         end
 
         ret['config']['script'].each_with_index do |v, i|

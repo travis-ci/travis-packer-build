@@ -220,7 +220,7 @@ module Travis
         @options ||= Travis::PackerBuild::Options.new.tap do |opts|
           opts.root_repo = ENV.fetch('ROOT_REPO', '')
           opts.target_repo_slug = ENV.fetch(
-            'TARGET_REPO_SLUG', 'travis-ci/packer-build'
+            'TARGET_REPO_SLUG', 'dev/null'
           )
           opts.travis_api_url = URI(
             ENV.fetch('TRAVIS_API_URL', 'https://api.travis-ci.org')

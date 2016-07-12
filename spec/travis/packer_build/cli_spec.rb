@@ -51,7 +51,7 @@ describe Travis::PackerBuild::Cli do
       .to receive(:changed_files).and_return(git_diff_files)
     %w(
       /repo/serious-business%2Fverybigapplication/requests
-      /repo/travis-ci%2Fpacker-build/requests
+      /repo/dev%2Fnull/requests
     ).each do |post_path|
       http_stubs.post(post_path) do |_env|
         [
