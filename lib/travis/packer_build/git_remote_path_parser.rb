@@ -3,6 +3,8 @@ require 'tmpdir'
 
 require 'git'
 
+require_relative 'git_path'
+
 module Travis
   module PackerBuild
     class GitRemotePathParser
@@ -29,10 +31,10 @@ module Travis
           end
 
           if File.directory?(local_clone)
-            git = Git.bare(local_clone, log: git_logger)
+            git = load_bare(local_clone)
             git.fetch
           else
-            git = Git.clone(repo_remote, local_clone, bare: true)
+            git = clone_bare(repo_remote, local_clone)
           end
 
           paths.split(',').map do |path_entry|
@@ -48,6 +50,14 @@ module Travis
       private
 
       attr_reader :clone_tmp
+
+      def clone_bare(repo_remote, local_clone)
+        Git.clone(repo_remote, local_clone, bare: true, log: git_logger)
+      end
+
+      def load_bare(local_clone)
+        Git.bare(local_clone, log: git_logger)
+      end
 
       def clone_basename(repo_remote)
         URI.escape(repo_remote, '@:/.') + '.git'

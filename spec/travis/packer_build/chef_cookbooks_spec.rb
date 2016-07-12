@@ -1,4 +1,5 @@
-require 'travis/packer_build'
+require 'travis/packer_build/chef_cookbooks'
+require 'travis/packer_build/git_path'
 
 describe Travis::PackerBuild::ChefCookbooks do
   let(:fake_cookbook_path_entry) { double('fake_cookbook_path_entry') }

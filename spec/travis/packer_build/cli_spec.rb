@@ -1,4 +1,6 @@
-require 'travis/packer_build'
+require 'faraday'
+
+require 'travis/packer_build/cli'
 
 describe Travis::PackerBuild::Cli do
   subject { described_class.new }

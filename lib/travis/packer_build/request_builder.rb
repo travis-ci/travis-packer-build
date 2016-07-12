@@ -1,6 +1,8 @@
 require 'uri'
 require 'json'
 
+require_relative 'request'
+
 module Travis
   module PackerBuild
     class RequestBuilder

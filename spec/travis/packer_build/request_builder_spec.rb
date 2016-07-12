@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/request_builder'
 
 describe Travis::PackerBuild::RequestBuilder do
   subject do

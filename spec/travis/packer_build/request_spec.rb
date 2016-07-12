@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/request'
 
 describe Travis::PackerBuild::Request do
   %w(

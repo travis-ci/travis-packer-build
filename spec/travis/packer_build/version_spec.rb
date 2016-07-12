@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/version'
 
 describe Travis::PackerBuild::VERSION do
   subject { Travis::PackerBuild::VERSION }

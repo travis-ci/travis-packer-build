@@ -1,3 +1,5 @@
+require_relative 'git_path'
+
 module Travis
   module PackerBuild
     class GitPath

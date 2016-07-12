@@ -7,6 +7,15 @@ require 'uri'
 
 require 'faraday'
 
+require_relative 'chef_detector'
+require_relative 'file_detector'
+require_relative 'git_change_finder'
+require_relative 'git_remote_path_parser'
+require_relative 'git_root'
+require_relative 'options'
+require_relative 'request_builder'
+require_relative 'shell_detector'
+
 module Travis
   module PackerBuild
     class Cli

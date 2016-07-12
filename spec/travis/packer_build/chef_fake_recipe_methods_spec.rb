@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/chef_fake_recipe_methods'
 
 describe Travis::PackerBuild::ChefFakeRecipeMethods do
   subject do

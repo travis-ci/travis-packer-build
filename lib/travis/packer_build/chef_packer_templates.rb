@@ -1,3 +1,6 @@
+require_relative 'chef_dependency_finder'
+require_relative 'packer_templates'
+
 module Travis
   module PackerBuild
     class ChefPackerTemplates
@@ -21,19 +24,29 @@ module Travis
       def load_cookbooks_by_template
         loaded = {}
 
-        Travis::PackerBuild::PackerTemplates.new(
-          packer_templates_path
-        ).each do |_, t|
+        packer_templates.each do |_, t|
           Array(t.parsed['provisioners']).each do |provisioner|
             next unless provisioner['type'] =~ /chef/
             next if Array(provisioner.fetch('run_list', [])).empty?
-            loaded[t] = Travis::PackerBuild::ChefDependencyFinder.new(
+            loaded[t] = find_dependencies(
               provisioner['run_list'], cookbook_path
-            ).find
+            )
           end
         end
 
         loaded
+      end
+
+      def packer_templates
+        @packer_templates ||= Travis::PackerBuild::PackerTemplates.new(
+          packer_templates_path
+        )
+      end
+
+      def find_dependencies(run_list, cookbook_path)
+        Travis::PackerBuild::ChefDependencyFinder.new(
+          run_list, cookbook_path
+        ).find
       end
     end
   end

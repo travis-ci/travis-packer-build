@@ -1,4 +1,4 @@
-require 'travis/packer_build'
+require 'travis/packer_build/git_path'
 
 describe Travis::PackerBuild::GitPath do
   subject do
