@@ -86,7 +86,19 @@ module Travis
         ret['config']['script'] = Array(ret['config']['script'])
         if ret['config']['script'].empty?
           ret['config']['script'] = [
-            'packer build -only=${BUILDER} %{template_filename}'
+            <<-EOF.gsub(/^\s+> ?/, '').split("\n").map(&:strip).join(' ')
+            > if [[ %{template_filename} =~ yml ]] ; then
+            >   packer build -only=${BUILDER} <(
+            >     ruby -rjson -ryaml -rerb -e "
+            >       puts JSON.pretty_generate(
+            >         YAML.load(ERB.new($stdin.read).result)
+            >       )
+            >     " < %{template_filename}
+            >   ) ;
+            > else
+            >   packer build -only=${BUILDER} %{template_filename} ;
+            > fi
+            EOF
           ]
         end
 
