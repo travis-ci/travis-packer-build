@@ -1,5 +1,6 @@
 require 'uri'
 require 'json'
+require 'yaml'
 
 require_relative 'request'
 
@@ -8,13 +9,13 @@ module Travis
     class RequestBuilder
       def initialize(travis_api_token: '', target_repo_slug: '',
                      builders: %w(), commit_range: %w(@ @),
-                     branch: '', body_json_tmpl: '{}')
+                     branch: '', body_tmpl: '{}')
         @travis_api_token = travis_api_token
         @target_repo_slug = target_repo_slug
         @builders = builders
         @commit_range = commit_range
         @branch = branch
-        @body_json_tmpl = load_body_json_tmpl(body_json_tmpl)
+        @body_tmpl = load_body_tmpl(body_tmpl)
       end
 
       def build(triggerable_templates)
@@ -40,10 +41,10 @@ module Travis
       private
 
       attr_reader :travis_api_token, :target_repo_slug, :builders
-      attr_reader :commit_range, :branch, :body_json_tmpl
+      attr_reader :commit_range, :branch, :body_tmpl
 
       def body(template)
-        ret = Marshal.load(Marshal.dump(body_json_tmpl || {}))
+        ret = Marshal.load(Marshal.dump(body_tmpl || {}))
         ret['message'] = interpolated_value(
           ret['message'], ':bomb: commit-range=%{commit_range_string}',
           template
@@ -125,10 +126,10 @@ module Travis
         }
       end
 
-      def load_body_json_tmpl(hashstring)
+      def load_body_tmpl(hashstring)
         return hashstring if hashstring.respond_to?(:key)
-        return JSON.parse(File.read(hashstring)) if File.exist?(hashstring)
-        JSON.parse(hashstring)
+        return YAML.load_file(hashstring) if File.exist?(hashstring)
+        YAML.load(hashstring)
       end
     end
   end
