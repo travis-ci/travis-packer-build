@@ -4,10 +4,10 @@ describe Travis::PackerBuild::Options do
   %w(
     body_tmpl
     branch
-    builders
     chef_cookbook_path
     clone_tmp
     commit_range
+    default_builders
     noop
     packer_templates_path
     quiet

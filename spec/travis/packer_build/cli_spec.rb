@@ -22,7 +22,7 @@ describe Travis::PackerBuild::Cli do
       --travis-api-token=SOVERYSECRET
       --commit-range=fafafaf...afafafa
       --branch=twig
-      --builders=bob,wendy,pickles
+      --default-builders=bob,wendy,pickles
       --request-interval=0
     )
   end
@@ -46,13 +46,30 @@ describe Travis::PackerBuild::Cli do
         'Travis::PackerBuild::PackerTemplate',
         :wooker,
         name: 'wooker',
-        filename: 'wooker.yml'
+        filename: 'wooker.yml',
+        parsed: {
+          'builders' => [
+            {
+              'type' => 'googlecompute'
+            },
+            {
+              'type' => 'amazon-ebs'
+            }
+          ]
+        }
       ),
       instance_double(
         'Travis::PackerBuild::PackerTemplate',
         :dippity,
         name: 'dippity',
-        filename: 'dippity.json'
+        filename: 'dippity.json',
+        parsed: {
+          'builders' => [
+            {
+              'type' => 'docker'
+            }
+          ]
+        }
       )
     ]
   end
@@ -78,7 +95,7 @@ describe Travis::PackerBuild::Cli do
         ]
       end
     end
-    allow(subject.send(:options)).to receive(:builders)
+    allow(subject.send(:options)).to receive(:default_builders)
       .and_return(%w(fribble schnozzle))
     allow(subject).to receive(:detectors).and_return([fake_detector])
     allow(fake_detector).to receive(:detect).and_return(fake_templates)

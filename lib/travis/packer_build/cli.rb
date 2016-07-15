@@ -166,11 +166,12 @@ module Travis
             options.request_interval = v
           end
 
-          opts.on('-b BUILDERS', '--builders BUILDERS',
-                  'Packer builder names for which Travis jobs should ' \
-                  'be triggered (","-delimited). ' \
-                  "default=#{options.builders}") do |v|
-            options.builders = v.split(',').map(&:strip)
+          opts.on('-b BUILDERS', '--default-builders BUILDERS',
+                  'Default packer builder names for which Travis jobs ' \
+                  'should be triggered (","-delimited), otherwise read ' \
+                  'from the given packer template. ' \
+                  "default=#{options.default_builders}") do |v|
+            options.default_builders = v.split(',').map(&:strip)
           end
 
           opts.on('-S STRING_OR_FILENAME', '--body-tmpl STRING_OR_FILENAME',
@@ -240,7 +241,7 @@ module Travis
             'CLONE_TMP', File.join(Dir.tmpdir, 'travis-packer-build')
           )
 
-          opts.builders = ENV.fetch(
+          opts.default_builders = ENV.fetch(
             'BUILDERS', 'amazon-ebs,googlecompute,docker'
           ).split(',').map(&:strip)
 
@@ -288,7 +289,7 @@ module Travis
         @request_builder ||= Travis::PackerBuild::RequestBuilder.new(
           travis_api_token: options.travis_api_token,
           target_repo_slug: options.target_repo_slug,
-          builders: options.builders,
+          default_builders: options.default_builders,
           commit_range: commit_range,
           branch: options.branch,
           body_tmpl: options.body_tmpl

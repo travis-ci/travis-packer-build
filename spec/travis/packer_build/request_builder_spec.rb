@@ -5,7 +5,7 @@ describe Travis::PackerBuild::RequestBuilder do
     described_class.new(
       travis_api_token: 'wherps',
       target_repo_slug: 'serious/application',
-      builders: %w(blastoise bulbasaur),
+      default_builders: %w(blastoise bulbasaur),
       commit_range: %w(fafafaf afafafa),
       branch: 'meister'
     )
@@ -17,13 +17,32 @@ describe Travis::PackerBuild::RequestBuilder do
         'Travis::PackerBuild::PackerTemplate',
         :larping,
         name: 'larping',
-        filename: 'larping.json'
+        filename: 'larping.json',
+        parsed: {
+          'builders' => [
+            {
+              'type' => 'googlecompute',
+              'name' => 'gce'
+            }
+          ]
+        }
       ),
       instance_double(
         'Travis::PackerBuild::PackerTemplate',
         :flurb,
         name: 'flurb',
-        filename: 'flurb.yml'
+        filename: 'flurb.yml',
+        parsed: {
+          'builders' => [
+            {
+              'type' => 'amazon-ebs'
+            },
+            {
+              'type' => 'docker',
+              'name' => 'dooker'
+            }
+          ]
+        }
       )
     ]
   end
@@ -76,7 +95,7 @@ describe Travis::PackerBuild::RequestBuilder do
 
     it 'contains an env matrix with each builder and template' do
       expect(body['config']['env']['matrix'])
-        .to eq(%w(BUILDER=blastoise BUILDER=bulbasaur))
+        .to eq(%w(BUILDER=amazon-ebs BUILDER=dooker))
     end
   end
 end
