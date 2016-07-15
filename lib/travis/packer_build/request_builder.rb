@@ -8,11 +8,11 @@ module Travis
   module PackerBuild
     class RequestBuilder
       def initialize(travis_api_token: '', target_repo_slug: '',
-                     builders: %w(), commit_range: %w(@ @),
+                     default_builders: %w(), commit_range: %w(@ @),
                      branch: '', body_tmpl: '{}')
         @travis_api_token = travis_api_token
         @target_repo_slug = target_repo_slug
-        @builders = builders
+        @default_builders = default_builders
         @commit_range = commit_range
         @branch = branch
         @body_tmpl = load_body_tmpl(body_tmpl)
@@ -40,7 +40,7 @@ module Travis
 
       private
 
-      attr_reader :travis_api_token, :target_repo_slug, :builders
+      attr_reader :travis_api_token, :target_repo_slug, :default_builders
       attr_reader :commit_range, :branch, :body_tmpl
 
       def body(template)
@@ -72,6 +72,12 @@ module Travis
             ret['config']['env']['matrix'][i] = v % body_vars(template)
           end
         else
+          builders = default_builders
+          if template.parsed.key?('builders')
+            builders = template.parsed['builders'].map do |builder|
+              builder['name'] || builder['type']
+            end
+          end
           ret['config']['env']['matrix'] = builders.map { |b| "BUILDER=#{b}" }
         end
 
