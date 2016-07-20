@@ -330,7 +330,11 @@ module Travis
       end
 
       def commit_message(treeish)
-        Git.bare(options.root_repo_dir).gcommit(treeish).message
+        Git.bare(options.root_repo_dir)
+           .gcommit(treeish)
+           .message
+           .sub(/.*END PGP SIGNATURE-+/m, '')
+           .strip
       end
 
       def commit_range
