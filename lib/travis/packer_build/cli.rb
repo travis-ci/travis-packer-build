@@ -290,9 +290,16 @@ module Travis
           travis_api_token: options.travis_api_token,
           target_repo_slug: options.target_repo_slug,
           default_builders: options.default_builders,
-          commit_range: commit_range,
           branch: options.branch,
-          body_tmpl: options.body_tmpl
+          body_tmpl: options.body_tmpl,
+          body_vars: {
+            commit_range: commit_range,
+            commit_range_string: commit_range.join('...'),
+            commit_range_first: commit_range.first,
+            commit_range_last: commit_range.last,
+            source_commit: commit_range.last,
+            source_commit_message: commit_message(commit_range.last)
+          }
         )
       end
 
@@ -307,15 +314,27 @@ module Travis
 
       def git_change_finder
         @git_change_finder ||= Travis::PackerBuild::GitChangeFinder.new(
-          root: Travis::PackerBuild::GitRoot.new(
-            commit_range: commit_range,
-            branch: options.branch,
-            dir: options.root_repo_dir,
-            remote: options.root_repo
-          ),
+          root: root_repo_git,
           packer_templates_path: options.packer_templates_path,
           clone_tmp: options.clone_tmp
         )
+      end
+
+      def root_repo_git
+        @root_repo_git ||= Travis::PackerBuild::GitRoot.new(
+          commit_range: commit_range,
+          branch: options.branch,
+          dir: options.root_repo_dir,
+          remote: options.root_repo
+        )
+      end
+
+      def commit_message(treeish)
+        Git.bare(options.root_repo_dir)
+           .gcommit(treeish)
+           .message
+           .sub(/.*END PGP SIGNATURE-+/m, '')
+           .strip
       end
 
       def commit_range

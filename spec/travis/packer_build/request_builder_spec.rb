@@ -6,7 +6,7 @@ describe Travis::PackerBuild::RequestBuilder do
       travis_api_token: 'wherps',
       target_repo_slug: 'serious/application',
       default_builders: %w(blastoise bulbasaur),
-      commit_range: %w(fafafaf afafafa),
+      body_vars: {},
       branch: 'meister'
     )
   end
@@ -77,7 +77,7 @@ describe Travis::PackerBuild::RequestBuilder do
     let(:body) { subject.send(:body, fake_templates.last) }
 
     it 'has a message with commit' do
-      expect(body['message']).to match(/commit-range=fafafaf\.\.\.afafafa/)
+      expect(body['message']).to match(/:bomb:/)
     end
 
     it 'specifies a branch' do

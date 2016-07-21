@@ -74,7 +74,29 @@ describe Travis::PackerBuild::Cli do
     ]
   end
 
+  let :fake_git_repo do
+    instance_double(
+      'Git::Base',
+      :fake_git_repo
+    )
+  end
+
+  let :fake_git_remote_path_parser do
+    instance_double(
+      'Travis::PackerBuild::GitRemotePathParser',
+      :fake_git_remote_path_parser,
+      parse: [
+        instance_double(
+          'Travis::PackerBuild::GitPath',
+          :pathy_path,
+          repo: fake_git_repo
+        )
+      ]
+    )
+  end
+
   before :each do
+    allow(fake_git_repo).to receive_message_chain('repo.path') { '.git' }
     allow_any_instance_of(described_class)
       .to receive(:build_http).and_return(test_http)
     allow(subject.send(:options))
@@ -83,6 +105,11 @@ describe Travis::PackerBuild::Cli do
       .to receive(:commit_range).and_return(%w(fafafaf afafafa))
     allow_any_instance_of(described_class)
       .to receive(:changed_files).and_return(git_diff_files)
+    allow_any_instance_of(described_class)
+      .to receive(:commit_message).and_return('flea flah flew')
+    allow_any_instance_of(described_class)
+      .to receive(:git_remote_path_parser)
+      .and_return(fake_git_remote_path_parser)
     %w(
       /repo/serious-business%2Fverybigapplication/requests
       /repo/dev%2Fnull/requests

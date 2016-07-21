@@ -8,12 +8,12 @@ module Travis
   module PackerBuild
     class RequestBuilder
       def initialize(travis_api_token: '', target_repo_slug: '',
-                     default_builders: %w(), commit_range: %w(@ @),
+                     default_builders: %w(), body_vars: {},
                      branch: '', body_tmpl: '{}')
         @travis_api_token = travis_api_token
         @target_repo_slug = target_repo_slug
         @default_builders = default_builders
-        @commit_range = commit_range
+        @body_vars = body_vars
         @branch = branch
         @body_tmpl = load_body_tmpl(body_tmpl)
       end
@@ -41,12 +41,12 @@ module Travis
       private
 
       attr_reader :travis_api_token, :target_repo_slug, :default_builders
-      attr_reader :commit_range, :branch, :body_tmpl
+      attr_reader :body_vars, :branch, :body_tmpl
 
       def body(template)
         ret = Marshal.load(Marshal.dump(body_tmpl || {}))
         ret['message'] = interpolated_value(
-          ret['message'], ':bomb: commit-range=%{commit_range_string}',
+          ret['message'], ':bomb:',
           template
         )
         ret['branch'] = interpolated_value(
@@ -69,7 +69,7 @@ module Travis
 
         if ret['config']['env'].key?('matrix')
           ret['config']['env']['matrix'].each_with_index do |v, i|
-            ret['config']['env']['matrix'][i] = v % body_vars(template)
+            ret['config']['env']['matrix'][i] = v % template_body_vars(template)
           end
         else
           builders = default_builders
@@ -87,7 +87,7 @@ module Travis
         end
 
         ret['config']['install'].each_with_index do |v, i|
-          ret['config']['install'][i] = v % body_vars(template)
+          ret['config']['install'][i] = v % template_body_vars(template)
         end
 
         ret['config']['script'] = Array(ret['config']['script'])
@@ -110,26 +110,22 @@ module Travis
         end
 
         ret['config']['script'].each_with_index do |v, i|
-          ret['config']['script'][i] = v % body_vars(template)
+          ret['config']['script'][i] = v % template_body_vars(template)
         end
 
         ret
       end
 
       def interpolated_value(value, default, template)
-        (value || default) % body_vars(template)
+        (value || default) % template_body_vars(template)
       end
 
-      def body_vars(template)
-        {
-          commit_range: commit_range,
-          commit_range_string: commit_range.join('...'),
-          commit_range_first: commit_range.first,
-          commit_range_last: commit_range.last,
+      def template_body_vars(template)
+        body_vars.merge(
           branch: branch,
           template_name: template.name,
           template_filename: template.filename
-        }
+        )
       end
 
       def load_body_tmpl(hashstring)
