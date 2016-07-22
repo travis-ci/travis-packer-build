@@ -1,4 +1,4 @@
-require 'json'
+require 'yaml'
 
 require 'gh'
 
@@ -85,7 +85,7 @@ module Travis
       def repos_path
         @repos_path ||= URI(
           gh["repos/#{repo_slug}"]['_links']['self']['href']
-        ).path
+        ).path.sub(%r{^/}, '')
       end
 
       def gh
