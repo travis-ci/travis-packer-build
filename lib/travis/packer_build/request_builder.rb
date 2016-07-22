@@ -7,11 +7,8 @@ require_relative 'request'
 module Travis
   module PackerBuild
     class RequestBuilder
-      def initialize(travis_api_token: '', target_repo_slug: '',
-                     default_builders: %w(), body_vars: {},
+      def initialize(default_builders: %w(), body_vars: {},
                      branch: '', body_tmpl: '{}')
-        @travis_api_token = travis_api_token
-        @target_repo_slug = target_repo_slug
         @default_builders = default_builders
         @body_vars = body_vars
         @branch = branch
@@ -22,16 +19,10 @@ module Travis
         requests = []
         triggerable_templates.each do |template|
           request = Travis::PackerBuild::Request.new.tap do |req|
-            req.url = File.join(
-              '/repo', URI.escape(target_repo_slug, '/'), 'requests'
-            )
-            req.body = JSON.dump(body(template))
-            req.headers = {
-              'Content-Type' => 'application/json',
-              'Accept' => 'application/json',
-              'Travis-API-Version' => '3',
-              'Authorization' => "token #{travis_api_token}"
-            }
+            rendered = body(template)
+            req.message = rendered['message']
+            req.config = rendered['config']
+            req.branch = rendered['branch']
           end
           requests << [template, request]
         end
@@ -40,8 +31,7 @@ module Travis
 
       private
 
-      attr_reader :travis_api_token, :target_repo_slug, :default_builders
-      attr_reader :body_vars, :branch, :body_tmpl
+      attr_reader :default_builders, :body_vars, :branch, :body_tmpl
 
       def body(template)
         ret = Marshal.load(Marshal.dump(body_tmpl || {}))

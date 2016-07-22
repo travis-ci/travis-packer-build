@@ -18,27 +18,20 @@ describe Travis::PackerBuild::Cli do
       --chef-cookbook-path=#{here}/.git::cookbooks
       --packer-templates-path=#{here}/.git::cookbooks
       --target-repo-slug=serious-business/verybigapplication
-      --travis-api-url=https://bogus.example.com:9999
-      --travis-api-token=SOVERYSECRET
+      --github-api-token=SOVERYSECRET
       --commit-range=fafafaf...afafafa
       --branch=twig
       --default-builders=bob,wendy,pickles
-      --request-interval=0
     )
   end
 
-  let :test_http do
-    Faraday.new do |faraday|
-      faraday.adapter :test, http_stubs
-    end
+  let :fake_github_requester do
+    instance_double(
+      'Travis::PackerBuild::GithubRequester',
+      :fake_github_requester,
+      perform: true
+    )
   end
-
-  let :http_stubs do
-    Faraday::Adapter::Test::Stubs.new
-  end
-
-  let(:response_status) { 201 }
-  let(:response_body) { '{"yey":true}' }
 
   let :fake_templates do
     [
@@ -98,9 +91,9 @@ describe Travis::PackerBuild::Cli do
   before :each do
     allow(fake_git_repo).to receive_message_chain('repo.path') { '.git' }
     allow_any_instance_of(described_class)
-      .to receive(:build_http).and_return(test_http)
+      .to receive(:github_requester).and_return(fake_github_requester)
     allow(subject.send(:options))
-      .to receive(:travis_api_token).and_return(api_token)
+      .to receive(:github_api_token).and_return(api_token)
     allow(subject.send(:options))
       .to receive(:commit_range).and_return(%w(fafafaf afafafa))
     allow_any_instance_of(described_class)
@@ -110,18 +103,6 @@ describe Travis::PackerBuild::Cli do
     allow_any_instance_of(described_class)
       .to receive(:git_remote_path_parser)
       .and_return(fake_git_remote_path_parser)
-    %w(
-      /repo/serious-business%2Fverybigapplication/requests
-      /repo/dev%2Fnull/requests
-    ).each do |post_path|
-      http_stubs.post(post_path) do |_env|
-        [
-          response_status,
-          { 'Content-Type' => 'application/json' },
-          response_body
-        ]
-      end
-    end
     allow(subject.send(:options)).to receive(:default_builders)
       .and_return(%w(fribble schnozzle))
     allow(subject).to receive(:detectors).and_return([fake_detector])
@@ -140,25 +121,6 @@ describe Travis::PackerBuild::Cli do
 
   it 'may be run via #run' do
     expect(subject.run(argv: argv)).to eq(0)
-  end
-
-  it 'makes no http requests on noop' do
-    expect(test_http).to_not receive(:post)
-    subject.run(argv: argv + %w(--noop))
-  end
-
-  context 'when response status is > 299' do
-    let(:response_status) { 403 }
-    let(:response_body) { '{"error":"there is no try"}' }
-
-    it 'counts it as an error' do
-      logged = []
-      allow(subject.send(:log)).to receive(:info) do |*args|
-        logged << args
-      end
-      subject.run(argv: argv)
-      expect(logged).to include(['All done! triggered=0 errored=2'])
-    end
   end
 
   describe 'requests' do
