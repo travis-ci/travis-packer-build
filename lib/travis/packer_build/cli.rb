@@ -12,6 +12,7 @@ require_relative 'file_detector'
 require_relative 'git_change_finder'
 require_relative 'git_remote_path_parser'
 require_relative 'git_root'
+require_relative 'github_requester'
 require_relative 'options'
 require_relative 'request_builder'
 require_relative 'shell_detector'
@@ -29,8 +30,6 @@ module Travis
         ret = 0
         triggered = 0
         errored = 0
-        req_count = 0
-        http = build_http
 
         build_requests.each do |template, request|
           if options.noop
@@ -39,31 +38,13 @@ module Travis
             next
           end
 
-          unless req_count.zero?
-            log.info "Sleeping interval=#{options.request_interval}s"
-            sleep options.request_interval
-          end
-
-          req_count += 1
-
-          response = http.post do |req|
-            req.url request.url
-            req.headers.merge!(request.headers)
-            req.body = request.body
-          end
-
-          if response.status < 299
+          if github_requester.perform(request)
             log.info "Triggered template=#{template.name} " \
                      "repo=#{options.target_repo_slug}"
             triggered += 1
             next
           end
 
-          if response.headers['Content-Type'] =~ /\bjson\b/
-            log.error JSON.parse(response.body).fetch('error', '???')
-          else
-            log.error response.body
-          end
           errored += 1
           ret = 1
         end
@@ -76,10 +57,6 @@ module Travis
 
       def build_requests
         request_builder.build(triggerable_templates)
-      end
-
-      def build_http
-        Faraday.new(url: options.travis_api_url)
       end
 
       def setup(argv)
@@ -149,21 +126,9 @@ module Travis
             options.target_repo_slug = v.strip
           end
 
-          opts.on('-u URL', '--travis-api-url URL',
-                  'URL of the Travis API to which triggered builds should ' \
-                  "be sent. default=#{options.travis_api_url}") do |v|
-            options.travis_api_url = URI(v)
-          end
-
-          opts.on('-T TOKEN', '--travis-api-token TOKEN',
-                  'API token for use with Travis API.') do |v|
-            options.travis_api_token = v.strip
-          end
-
-          opts.on('-I REQUEST_INTERVAL', '--request-interval REQUEST_INTERVAL',
-                  Integer, 'Interval (in seconds) at which Travis API ' \
-                  'requests will be made. ') do |v|
-            options.request_interval = v
+          opts.on('-T TOKEN', '--github-api-token TOKEN',
+                  'API token for use with GitHub API.') do |v|
+            options.github_api_token = v.strip
           end
 
           opts.on('-b BUILDERS', '--default-builders BUILDERS',
@@ -223,10 +188,7 @@ module Travis
           opts.target_repo_slug = ENV.fetch(
             'TARGET_REPO_SLUG', 'dev/null'
           )
-          opts.travis_api_url = URI(
-            ENV.fetch('TRAVIS_API_URL', 'https://api.travis-ci.org')
-          )
-          opts.travis_api_token = ENV.fetch('TRAVIS_API_TOKEN', '')
+          opts.github_api_token = ENV.fetch('GITHUB_API_TOKEN', '')
 
           opts.commit_range = ENV.fetch(
             'COMMIT_RANGE',
@@ -236,7 +198,9 @@ module Travis
             )
           ).split('...').map(&:strip)
 
-          opts.branch = ENV.fetch('BRANCH', ENV.fetch('TRAVIS_BRANCH', ''))
+          opts.branch = ENV.fetch(
+            'BRANCH', ENV.fetch('TRAVIS_BRANCH', 'master')
+          )
           opts.clone_tmp = ENV.fetch(
             'CLONE_TMP', File.join(Dir.tmpdir, 'travis-packer-build')
           )
@@ -245,13 +209,18 @@ module Travis
             'BUILDERS', 'amazon-ebs,googlecompute,docker'
           ).split(',').map(&:strip)
 
-          opts.request_interval = Integer(ENV.fetch('REQUEST_INTERVAL', '1'))
-
           opts.body_tmpl = ENV.fetch('BODY_TMPL', '{}')
 
           opts.noop = ENV['NOOP'] == '1'
           opts.quiet = ENV['QUIET'] == '1'
         end
+      end
+
+      def github_requester
+        @github_requester ||= Travis::PackerBuild::GithubRequester.new(
+          github_api_token: options.github_api_token,
+          repo_slug: options.target_repo_slug
+        )
       end
 
       def git_remote_path_parser
@@ -287,8 +256,6 @@ module Travis
 
       def request_builder
         @request_builder ||= Travis::PackerBuild::RequestBuilder.new(
-          travis_api_token: options.travis_api_token,
-          target_repo_slug: options.target_repo_slug,
           default_builders: options.default_builders,
           branch: options.branch,
           body_tmpl: options.body_tmpl,

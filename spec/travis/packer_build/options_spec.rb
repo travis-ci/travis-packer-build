@@ -11,12 +11,10 @@ describe Travis::PackerBuild::Options do
     noop
     packer_templates_path
     quiet
-    request_interval
     root_repo
     root_repo_dir
     target_repo_slug
-    travis_api_token
-    travis_api_url
+    github_api_token
   ).each do |attr|
     it("has a #{attr} attr") { subject.public_send(attr) }
   end

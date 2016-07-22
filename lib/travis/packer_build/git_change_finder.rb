@@ -26,7 +26,6 @@ module Travis
         # range_start = root_repo_git.gcommit(root.commit_range.first).date
         # range_finish = root_repo_git.gcommit(root.commit_range.last).date
 
-        # require 'pry'; binding.pry
         # packer_templates.each do |_, template|
         #   template.git_paths.each do |entry|
         #     changed += changed_paths_in_range(

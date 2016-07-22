@@ -1,7 +1,7 @@
 module Travis
   module PackerBuild
     class Request
-      attr_accessor :url, :body, :headers
+      attr_accessor :message, :config, :branch
     end
   end
 end
