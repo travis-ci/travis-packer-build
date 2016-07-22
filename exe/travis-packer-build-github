@@ -1,0 +1,75 @@
+#!/usr/bin/env ruby
+
+require 'gh'
+require 'json'
+require 'travis/packer_build/cli'
+
+cli = Travis::PackerBuild::Cli.new
+cli.send(:setup, ARGV)
+options = cli.send(:options)
+triggerable_templates = cli.send(:triggerable_templates)
+request_builder = cli.send(:request_builder)
+requests = request_builder.build(triggerable_templates)
+
+slug = options.target_repo_slug
+gh = GH::DefaultStack.build(token: ENV.fetch('GITHUB_API_TOKEN'))
+
+require 'pry'
+
+repos_path = URI(gh["repos/#{slug}"]['_links']['self']['href']).path
+
+requests.each do |template, request|
+  base_commit = ''
+  req_body = JSON.parse(request.body)
+
+  begin
+    base_commit = gh["#{repos_path}/git/refs/heads/#{template.name}"]['object']['sha']
+  rescue => e
+    $stderr.puts "Nonexistent head #{template.name}"
+    $stderr.puts e
+    next
+  end
+
+  base_tree = gh["#{repos_path}/git/commits/#{base_commit}"]['tree']['sha']
+
+  blob_sha = gh.post(
+    "#{repos_path}/git/blobs",
+    { content: YAML.dump(req_body.fetch('config')) }.to_json
+  )['sha']
+
+  blob_tree = gh.post(
+    "#{repos_path}/git/trees",
+    {
+      base_tree: base_tree,
+      tree: [
+        {
+          type: 'blob',
+          path: '.travis.yml',
+          mode: '100644',
+          sha: blob_sha
+        }
+      ]
+    }
+  )['sha']
+
+
+  blob_commit = gh.post(
+    "#{repos_path}/git/commits",
+    {
+      tree: blob_tree,
+      parents: [
+        base_commit
+      ],
+      message: req_body.fetch('message'),
+      author: {
+        name: 'NOT DAN',
+        email: 'dan@travis-ci.org'
+      }
+    }.to_json
+  )['sha']
+
+  gh.patch(
+    "#{repos_path}/git/refs/heads/#{template.name}",
+    { sha: blob_commit }.to_json
+  )
+end
