@@ -198,7 +198,9 @@ module Travis
             )
           ).split('...').map(&:strip)
 
-          opts.branch = ENV.fetch('BRANCH', ENV.fetch('TRAVIS_BRANCH', ''))
+          opts.branch = ENV.fetch(
+            'BRANCH', ENV.fetch('TRAVIS_BRANCH', 'master')
+          )
           opts.clone_tmp = ENV.fetch(
             'CLONE_TMP', File.join(Dir.tmpdir, 'travis-packer-build')
           )
