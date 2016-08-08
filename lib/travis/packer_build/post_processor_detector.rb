@@ -19,7 +19,10 @@ module Travis
           intersection = post_processor_files(
             (template.parsed['post-processors'] || []).flatten
           ) & filenames
-          to_trigger << template unless intersection.empty?
+          unless intersection.empty?
+            to_trigger << template
+            log.info "Detected type=post-processor template=#{template.name}"
+          end
         end
 
         to_trigger.sort_by(&:name).uniq(&:name)
