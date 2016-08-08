@@ -14,6 +14,7 @@ require_relative 'git_remote_path_parser'
 require_relative 'git_root'
 require_relative 'github_requester'
 require_relative 'options'
+require_relative 'post_processor_detector'
 require_relative 'request_builder'
 require_relative 'shell_detector'
 
@@ -249,6 +250,9 @@ module Travis
             options.packer_templates_path, log
           ),
           Travis::PackerBuild::ShellDetector.new(
+            options.packer_templates_path, log
+          ),
+          Travis::PackerBuild::PostProcessorDetector.new(
             options.packer_templates_path, log
           )
         ]
