@@ -22,7 +22,10 @@ module Travis
           run_list_cookbooks.each do |cb|
             cb_files = Array(cookbooks.files(cb)).map(&:namespaced_path)
             next if cb_files.empty?
-            to_trigger << template unless (filenames & cb_files).empty?
+            unless (filenames & cb_files).empty?
+              to_trigger << template
+              log.info "Detected type=chef template=#{template.name}"
+            end
           end
         end
 

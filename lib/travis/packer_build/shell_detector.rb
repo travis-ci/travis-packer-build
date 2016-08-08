@@ -19,7 +19,10 @@ module Travis
           intersection = provisioner_files(
             template.parsed['provisioners'] || []
           ) & filenames
-          to_trigger << template unless intersection.empty?
+          unless intersection.empty?
+            to_trigger << template
+            log.info "Detected type=shell template=#{template.name}"
+          end
         end
 
         to_trigger.sort_by(&:name).uniq(&:name)

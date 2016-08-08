@@ -2,7 +2,7 @@ require_relative 'packer_templates'
 
 module Travis
   module PackerBuild
-    class FileDetector
+    class PostProcessorDetector
       def initialize(packer_templates_path, log)
         @packer_templates_path = packer_templates_path
         @log = log
@@ -14,14 +14,14 @@ module Travis
         to_trigger = []
 
         packer_templates.each do |_, template|
-          log.info "Detecting type=file template=#{template.name}"
+          log.info "Detecting type=post-processor template=#{template.name}"
           to_trigger << template if filenames.include?(template.filename)
-          intersection = provisioner_files(
-            template.parsed['provisioners'] || []
+          intersection = post_processor_files(
+            (template.parsed['post-processors'] || []).flatten
           ) & filenames
           unless intersection.empty?
             to_trigger << template
-            log.info "Detected type=file template=#{template.name}"
+            log.info "Detected type=post-processor template=#{template.name}"
           end
         end
 
@@ -38,14 +38,24 @@ module Travis
         )
       end
 
-      def provisioner_files(provisioners)
-        files = provisioners.select { |p| p['type'] == 'file' }.map do |p|
+      def post_processor_files(post_processors)
+        shell_local_post_processors = post_processors.select do |p|
+          p['type'] == 'shell-local'
+        end
+
+        script_files = shell_local_post_processors.map do |p|
+          Array(p['scripts']) + Array(p['script'])
+        end
+
+        script_files.flatten!
+        script_files.map! do |f|
           packer_templates_path.map do |entry|
-            matching_files = entry.files(/#{p['source']}/)
+            matching_files = entry.files(/#{f}/)
             matching_files.empty? ? nil : matching_files
           end
         end
-        files.flatten.compact.map(&:namespaced_path).sort.uniq
+
+        script_files.flatten.compact.map(&:namespaced_path).sort.uniq
       end
     end
   end
