@@ -39,6 +39,8 @@ module Travis
             next
           end
 
+          log.info "Performing request=#{request}"
+
           if github_requester.perform(request)
             log.info "Triggered template=#{template.name} " \
                      "repo=#{options.target_repo_slug}"
