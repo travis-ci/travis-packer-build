@@ -111,6 +111,12 @@ module Travis
             options.branch = v.strip
           end
 
+          opts.on('-P PULL_REQUEST', '--pull-request PULL_REQUEST',
+                  'Pull request number or "false" used in build template. ' \
+                  "default=#{options.pull_request}") do |v|
+            options.pull_request = v.strip
+          end
+
           opts.on('-D CLONE_TMP', '--clone-tmp CLONE_TMP',
                   'Temporary directory for git clones. ' \
                   "default=#{options.clone_tmp}") do |v|
