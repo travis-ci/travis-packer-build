@@ -204,6 +204,9 @@ module Travis
           opts.branch = ENV.fetch(
             'BRANCH', ENV.fetch('TRAVIS_BRANCH', 'master')
           )
+          opts.pull_request = ENV.fetch(
+            'PULL_REQUEST', ENV.fetch('TRAVIS_PULL_REQUEST', 'false')
+          )
           opts.clone_tmp = ENV.fetch(
             'CLONE_TMP', File.join(Dir.tmpdir, 'travis-packer-build')
           )
@@ -267,9 +270,10 @@ module Travis
           body_tmpl: options.body_tmpl,
           body_vars: {
             commit_range: commit_range,
-            commit_range_string: commit_range.join('...'),
             commit_range_first: commit_range.first,
             commit_range_last: commit_range.last,
+            commit_range_string: commit_range.join('...'),
+            pull_request: options.pull_request,
             source_commit: commit_range.last,
             source_commit_message: commit_message(commit_range.last)
           }
