@@ -53,7 +53,8 @@ module Travis
 
       # def commit_range_for_date_range(git, start, finish)
       #   range = (
-      #     Array(git.log(1_000).since(start)) & Array(git.log(1_000).until(finish))
+      #     Array(git.log(1_000).since(start)) &
+      #       Array(git.log(1_000).until(finish))
       #   )
       #   [range.last.sha, range.first.sha]
       # end

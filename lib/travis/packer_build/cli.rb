@@ -83,13 +83,15 @@ module Travis
         OptionParser.new do |opts|
           opts.on('-r GIT_REMOTE', '--root-repo GIT_REMOTE',
                   'Git remote of root repository to check commit range. ' \
-                  'defaults to the first entry of --packer-templates-path') do |v|
+                  'defaults to the first entry ' \
+                  'of --packer-templates-path') do |v|
             options.root_repo = v.strip
           end
 
           opts.on('-R GIT_DIR', '--root-repo-dir GIT_DIR',
                   'Git dir of root repository to check commit range. ' \
-                  'defaults to the first entry of --packer-templates-path') do |v|
+                  'defaults to the first entry ' \
+                  'of --packer-templates-path') do |v|
             options.root_repo_dir = File.expand_path(v.strip)
           end
 
@@ -106,8 +108,8 @@ module Travis
           end
 
           opts.on('-B BRANCH', '--branch BRANCH',
-                  'Branch name to clone of root repository in triggered build. ' \
-                  "default=#{options.branch}") do |v|
+                  'Branch name to clone of root repository in triggered ' \
+                  "build. default=#{options.branch}") do |v|
             options.branch = v.strip
           end
 
@@ -124,8 +126,8 @@ module Travis
           end
 
           opts.on('-t REPO', '--target-repo-slug REPO',
-                  'Target repo slug to which triggered builds should be sent. ' \
-                  "default=#{options.target_repo_slug}") do |v|
+                  'Target repo slug to which triggered builds should ' \
+                  "be sent. default=#{options.target_repo_slug}") do |v|
             options.target_repo_slug = v.strip
           end
 
