@@ -8,13 +8,14 @@ describe Travis::PackerBuild::Options do
     clone_tmp
     commit_range
     default_builders
+    github_api_token
     noop
     packer_templates_path
+    pull_request
     quiet
     root_repo
     root_repo_dir
     target_repo_slug
-    github_api_token
   ).each do |attr|
     it("has a #{attr} attr") { subject.public_send(attr) }
   end
