@@ -298,8 +298,11 @@ module Travis
       end
 
       def triggerable_templates
+        included = options.included_templates.map do |t|
+          Travis::PackerBuild::PackerTemplate.new(t, File.read(t))
+        end
         detected = detectors.map { |d| d.detect(changed_files) }.flatten
-        (options.included_templates + detected).sort_by(&:name).uniq(&:name)
+        (included + detected).sort_by(&:name).uniq(&:name)
       end
 
       def changed_files
