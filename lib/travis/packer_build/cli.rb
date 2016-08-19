@@ -225,7 +225,7 @@ module Travis
           )
 
           opts.included_templates = ENV.fetch(
-            'INCLUDED_PATHS', ''
+            'INCLUDED_TEMPLATES', ''
           ).split(',').map(&:strip)
 
           opts.default_builders = ENV.fetch(
