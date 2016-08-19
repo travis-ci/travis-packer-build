@@ -133,7 +133,7 @@ module Travis
                   'Packer template .yml file to include regardless of ' \
                   'changes detected. ' \
                   "default=#{options.included_templates}") do |v|
-            options.included_templates << File.basename(v.strip, '.yml')
+            options.included_templates << v.strip
           end
 
           opts.on('-t REPO', '--target-repo-slug REPO',
