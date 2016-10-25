@@ -113,6 +113,12 @@ module Travis
             options.branch = v.strip
           end
 
+          opts.on('-P PULL_REQUEST', '--pull-request PULL_REQUEST',
+                  'Pull request number or "false" used in build template. ' \
+                  "default=#{options.pull_request}") do |v|
+            options.pull_request = v.strip
+          end
+
           opts.on('-D CLONE_TMP', '--clone-tmp CLONE_TMP',
                   'Temporary directory for git clones. ' \
                   "default=#{options.clone_tmp}") do |v|
@@ -123,6 +129,13 @@ module Travis
                   'Cookbook path. ' \
                   "default=#{default_chef_cookbook_path_string}") do |v|
             options.chef_cookbook_path = git_remote_path_parser.parse(v)
+          end
+
+          opts.on('-I TEMPLATE_YML', '--include TEMPLATE_YML',
+                  'Packer template .yml file to include regardless of ' \
+                  'changes detected. ' \
+                  "default=#{options.included_templates}") do |v|
+            options.included_templates << v.strip
           end
 
           opts.on('-t REPO', '--target-repo-slug REPO',
@@ -213,6 +226,10 @@ module Travis
             'CLONE_TMP', File.join(Dir.tmpdir, 'travis-packer-build')
           )
 
+          opts.included_templates = ENV.fetch(
+            'INCLUDED_TEMPLATES', ''
+          ).split(',').map(&:strip)
+
           opts.default_builders = ENV.fetch(
             'BUILDERS', 'amazon-ebs,googlecompute,docker'
           ).split(',').map(&:strip)
@@ -283,8 +300,11 @@ module Travis
       end
 
       def triggerable_templates
-        detectors.map { |d| d.detect(changed_files) }
-                 .flatten.sort_by(&:name).uniq(&:name)
+        included = options.included_templates.map do |t|
+          Travis::PackerBuild::PackerTemplate.new(t, File.read(t))
+        end
+        detected = detectors.map { |d| d.detect(changed_files) }.flatten
+        (included + detected).sort_by(&:name).uniq(&:name)
       end
 
       def changed_files

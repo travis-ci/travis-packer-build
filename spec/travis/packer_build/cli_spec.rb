@@ -21,6 +21,7 @@ describe Travis::PackerBuild::Cli do
       --github-api-token=SOVERYSECRET
       --commit-range=fafafaf...afafafa
       --branch=twig
+      --pull-request=86
       --default-builders=bob,wendy,pickles
     )
   end
