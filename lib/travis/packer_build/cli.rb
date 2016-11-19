@@ -334,6 +334,8 @@ module Travis
            .message
            .sub(/.*END PGP SIGNATURE-+/m, '')
            .strip
+           .split(/\n/)
+           .join("\n  ")
       end
 
       def commit_range
