@@ -85,13 +85,12 @@ module Travis
       end
 
       def render_body_tmpl(modified_body_tmpl, template)
-        YAML.load(
-          YAML.dump(modified_body_tmpl) % body_vars.merge(
-            branch: branch,
-            template_name: template.name,
-            template_filename: template.filename
-          )
+        redumped = YAML.dump(modified_body_tmpl) % body_vars.merge(
+          branch: branch,
+          template_name: template.name,
+          template_filename: template.filename
         )
+        YAML.load(redumped)
       end
 
       def load_body_tmpl(hashstring)
