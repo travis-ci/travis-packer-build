@@ -11,7 +11,7 @@ describe Travis::PackerBuild::ChefFakeRecipeMethods do
     subject.include_recipe 'toaster::pastry'
     subject.include_recipe 'magic::beans'
     expect(subject.instance_variable_get(:@included_recipes))
-      .to eq(%w(toaster::pastry magic::beans))
+      .to eq(%w[toaster::pastry magic::beans])
   end
 
   it 'allows for arbitrary depth node traversal' do
@@ -60,6 +60,6 @@ describe Travis::PackerBuild::ChefFakeRecipeMethods do
     EORECIPE
     expect(subject.instance_eval(recipe)).to eq(:made_it)
     expect(subject.instance_variable_get(:@included_recipes))
-      .to eq(%w(toaster::avocado frivolous::consumerism))
+      .to eq(%w[toaster::avocado frivolous::consumerism])
   end
 end

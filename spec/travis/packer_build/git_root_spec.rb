@@ -3,7 +3,7 @@ require 'travis/packer_build/git_root'
 describe Travis::PackerBuild::GitRoot do
   subject do
     described_class.new(
-      commit_range: %w(fafafaf afafafa),
+      commit_range: %w[fafafaf afafafa],
       branch: 'rad',
       dir: 'hej',
       remote: 'ray@interstellar.space:watermelon.git'
@@ -11,7 +11,7 @@ describe Travis::PackerBuild::GitRoot do
   end
 
   it 'has a commit range' do
-    expect(subject.commit_range).to eq(%w(fafafaf afafafa))
+    expect(subject.commit_range).to eq(%w[fafafaf afafafa])
   end
 
   it 'has a branch' do

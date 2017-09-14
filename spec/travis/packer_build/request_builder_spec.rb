@@ -3,7 +3,7 @@ require 'travis/packer_build/request_builder'
 describe Travis::PackerBuild::RequestBuilder do
   subject do
     described_class.new(
-      default_builders: %w(blastoise bulbasaur),
+      default_builders: %w[blastoise bulbasaur],
       body_vars: {},
       branch: 'meister'
     )
@@ -78,6 +78,6 @@ describe Travis::PackerBuild::RequestBuilder do
 
   it 'contains an env matrix with each builder and template' do
     expect(requests.map { |_, r| r.config['env']['matrix'] }.sort)
-      .to eq([%w(BUILDER=amazon-ebs BUILDER=dooker), %w(BUILDER=gce)])
+      .to eq([%w[BUILDER=amazon-ebs BUILDER=dooker], %w[BUILDER=gce]])
   end
 end

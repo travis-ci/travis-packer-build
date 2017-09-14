@@ -25,13 +25,13 @@ describe Travis::PackerBuild::GitPath do
   end
 
   let :fake_git_files do
-    %w(
+    %w[
       some/enchanted/place/flower-patch
       some/enchanted/place/flower-in-ur-guitar
       some/enchanted/place/sing-in-falsetto-already
       some/enchanted/place/why-are-you-wearing-that-tie
       you/dont/even/want
-    )
+    ]
   end
 
   before :each do

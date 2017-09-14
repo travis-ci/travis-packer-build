@@ -1,7 +1,7 @@
 require 'travis/packer_build/options'
 
 describe Travis::PackerBuild::Options do
-  %w(
+  %w[
     body_tmpl
     branch
     chef_cookbook_path
@@ -16,7 +16,7 @@ describe Travis::PackerBuild::Options do
     root_repo
     root_repo_dir
     target_repo_slug
-  ).each do |attr|
+  ].each do |attr|
     it("has a #{attr} attr") { subject.public_send(attr) }
   end
 end

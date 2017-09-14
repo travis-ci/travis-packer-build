@@ -23,23 +23,23 @@ describe Travis::PackerBuild::ChefDetector do
         'Travis::PackerBuild::PackerTemplate',
         name: 'world1-3',
         filename: 'blorp::world1-3.yml'
-      ) => %w(wendy lemmy larry roy),
+      ) => %w[wendy lemmy larry roy],
       instance_double(
         'Travis::PackerBuild::PackerTemplate',
         name: 'world8-2',
         filename: 'blorp::world8-2.json'
-      ) => %w(wendy morton ludwig lemmy)
+      ) => %w[wendy morton ludwig lemmy]
     }
   end
 
   let(:fake_cookbooks) do
     instance_double(
       'Travis::PackerBuild::ChefCookbooks',
-      files: %w(
+      files: %w[
         cookbooks/wendy/recipes/default.rb
         cookbooks/wendy/attributes/default.rb
         cookbooks/wendy/metadata.rb
-      ).map do |p|
+      ].map do |p|
         instance_double(
           'Travis::PackerBuild::GitPath',
           path: p,
@@ -70,6 +70,6 @@ describe Travis::PackerBuild::ChefDetector do
           )
         ]
       ).map(&:name)
-    ).to eql(%w(world1-3))
+    ).to eql(%w[world1-3])
   end
 end
