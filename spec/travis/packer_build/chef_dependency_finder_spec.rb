@@ -42,6 +42,6 @@ describe Travis::PackerBuild::ChefDependencyFinder do
   end
 
   it 'finds dependencies' do
-    expect(subject.find).to eql(%w(beancurd imagination tofurkey))
+    expect(subject.find).to eql(%w[beancurd imagination tofurkey])
   end
 end

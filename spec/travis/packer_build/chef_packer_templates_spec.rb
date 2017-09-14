@@ -68,20 +68,20 @@ describe Travis::PackerBuild::ChefPackerTemplates do
 
   let :fake_dependencies do
     {
-      'recipe[goodbar]' => %w(
+      'recipe[goodbar]' => %w[
         chalklit
         peanit
-      ),
-      'recipe[snicker]' => %w(
+      ],
+      'recipe[snicker]' => %w[
         chalklit
         peanit
         carmul
         noogit
-      ),
-      'recipe[musketeer]' => %w(
+      ],
+      'recipe[musketeer]' => %w[
         chalklit
         flooof
-      )
+      ]
     }
   end
 
@@ -99,11 +99,11 @@ describe Travis::PackerBuild::ChefPackerTemplates do
     loaded = Hash[Array(subject.each)]
     expect(loaded).to_not be_empty
     expect(loaded).to eq(
-      fake_packer_templates['baseybase'] => %w(
+      fake_packer_templates['baseybase'] => %w[
         hambro
         lake_ruin
-      ),
-      fake_packer_templates['delish'] => %w(
+      ],
+      fake_packer_templates['delish'] => %w[
         carmul
         chalklit
         flooof
@@ -112,7 +112,7 @@ describe Travis::PackerBuild::ChefPackerTemplates do
         noogit
         peanit
         snicker
-      )
+      ]
     )
   end
 end

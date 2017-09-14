@@ -7,7 +7,7 @@ require_relative 'request'
 module Travis
   module PackerBuild
     class RequestBuilder
-      def initialize(default_builders: %w(), body_vars: {},
+      def initialize(default_builders: %w[], body_vars: {},
                      branch: '', body_tmpl: '{}')
         @default_builders = default_builders
         @body_vars = body_vars
@@ -90,13 +90,13 @@ module Travis
           template_name: template.name,
           template_filename: template.filename
         )
-        YAML.load(redumped)
+        YAML.safe_load(redumped)
       end
 
       def load_body_tmpl(hashstring)
         return hashstring if hashstring.respond_to?(:key)
         return YAML.load_file(hashstring) if File.exist?(hashstring)
-        YAML.load(hashstring)
+        YAML.safe_load(hashstring)
       end
     end
   end

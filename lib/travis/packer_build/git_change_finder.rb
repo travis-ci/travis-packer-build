@@ -45,7 +45,7 @@ module Travis
 
       def changed_paths_in_range(git, start, finish)
         git.gtree(start).diff(finish).name_status
-           .select { |_, s| %w(M A).include?(s) }
+           .select { |_, s| %w[M A].include?(s) }
            .map do |f, _|
           Travis::PackerBuild::GitPath.new(git, f, finish)
         end

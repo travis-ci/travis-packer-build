@@ -18,13 +18,13 @@ describe Travis::PackerBuild::GithubRequester do
   before :each do
     allow(subject).to receive(:gh).and_return(fake_gh)
     allow(fake_gh).to receive(:[]).with('repos/dancing/bear')
-      .and_return(
-        '_links' => {
-          'self' => {
-            'href' => 'https://api.github.com/repositories/12345678?per_page=100'
-          }
-        }
-      )
+                                  .and_return(
+                                    '_links' => {
+                                      'self' => {
+                                        'href' => 'https://api.github.com/repositories/12345678?per_page=100'
+                                      }
+                                    }
+                                  )
     allow(fake_gh).to receive(:[])
       .with('repositories/12345678/git/refs/heads/meistersons')
       .and_return(

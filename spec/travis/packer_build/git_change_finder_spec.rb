@@ -27,7 +27,7 @@ describe Travis::PackerBuild::GitChangeFinder do
     instance_double(
       'Travis::PackerBuild::GitRoot',
       :root,
-      commit_range: %w(fafafaf afafafa)
+      commit_range: %w[fafafaf afafafa]
     )
   end
 

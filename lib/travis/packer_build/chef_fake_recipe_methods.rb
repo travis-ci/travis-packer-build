@@ -13,7 +13,7 @@ module Travis
         @included_recipes << name
       end
 
-      %w(
+      %w[
         ark
         apt_repository
         bash
@@ -43,15 +43,14 @@ module Travis
         template
         travis_python_pip
         user
-      ).each { |m| define_method(m) { |*, &block| } }
+      ].each { |m| define_method(m) { |*, &block| } }
 
       def node
         @node ||= ForeverHash.new
       end
 
       class BlackHole
-        def initialize(*)
-        end
+        def initialize(*); end
 
         def method_missing(*)
           self

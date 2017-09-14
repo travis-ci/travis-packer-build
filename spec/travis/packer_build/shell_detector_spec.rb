@@ -20,7 +20,7 @@ describe Travis::PackerBuild::ShellDetector do
           'provisioners' => [
             {
               'type' => 'shell',
-              'scripts' => %w(noises/boom)
+              'scripts' => %w[noises/boom]
             }
           ]
         }
@@ -33,7 +33,7 @@ describe Travis::PackerBuild::ShellDetector do
           'provisioners' => [
             {
               'type' => 'shell',
-              'inline' => %w(echo go jump in a lake)
+              'inline' => %w[echo go jump in a lake]
             },
             {
               'type' => 'shell',
@@ -84,11 +84,11 @@ describe Travis::PackerBuild::ShellDetector do
   it 'detects when shell provisioner files change' do
     expect(
       subject.detect(
-        %w(
+        %w[
           noises/boom
           special/conf/files/secret-squirrel.conf
           controversial-foods/pastrami
-        ).map do |p|
+        ].map do |p|
           instance_double(
             'Travis::PackerBuild::GitPath',
             path: p,
@@ -96,6 +96,6 @@ describe Travis::PackerBuild::ShellDetector do
           )
         end
       ).map(&:name)
-    ).to eql(%w(breads cakes))
+    ).to eql(%w[breads cakes])
   end
 end
