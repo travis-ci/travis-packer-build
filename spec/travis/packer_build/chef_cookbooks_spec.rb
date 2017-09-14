@@ -4,17 +4,17 @@ require 'travis/packer_build/git_path'
 describe Travis::PackerBuild::ChefCookbooks do
   let(:fake_cookbook_path_entry) { double('fake_cookbook_path_entry') }
   let :cookbook_metadata_files do
-    %w(
+    %w[
       cookbooks/bytecoind/metadata.rb
-    ).map { |f| Travis::PackerBuild::GitPath.new(nil, f) }
+    ].map { |f| Travis::PackerBuild::GitPath.new(nil, f) }
   end
 
   let :cookbook_bytecoind_files do
-    %w(
+    %w[
       cookbooks/bytecoind/metadata.rb
       cookbooks/bytecoind/recipes/default.rb
       cookbooks/bytecoind/attributes/default.rb
-    ).map { |f| Travis::PackerBuild::GitPath.new(nil, f) }
+    ].map { |f| Travis::PackerBuild::GitPath.new(nil, f) }
   end
 
   subject do

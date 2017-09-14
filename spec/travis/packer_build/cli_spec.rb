@@ -13,7 +13,7 @@ describe Travis::PackerBuild::Cli do
   let(:fake_detector) { double('fake_detector') }
 
   let :argv do
-    %W(
+    %W[
       --quiet
       --chef-cookbook-path=#{here}/.git::cookbooks
       --packer-templates-path=#{here}/.git::cookbooks
@@ -23,7 +23,7 @@ describe Travis::PackerBuild::Cli do
       --branch=twig
       --pull-request=86
       --default-builders=bob,wendy,pickles
-    )
+    ]
   end
 
   let :fake_github_requester do
@@ -96,7 +96,7 @@ describe Travis::PackerBuild::Cli do
     allow(subject.send(:options))
       .to receive(:github_api_token).and_return(api_token)
     allow(subject.send(:options))
-      .to receive(:commit_range).and_return(%w(fafafaf afafafa))
+      .to receive(:commit_range).and_return(%w[fafafaf afafafa])
     allow_any_instance_of(described_class)
       .to receive(:changed_files).and_return(git_diff_files)
     allow_any_instance_of(described_class)
@@ -105,14 +105,14 @@ describe Travis::PackerBuild::Cli do
       .to receive(:git_remote_path_parser)
       .and_return(fake_git_remote_path_parser)
     allow(subject.send(:options)).to receive(:default_builders)
-      .and_return(%w(fribble schnozzle))
+      .and_return(%w[fribble schnozzle])
     allow(subject).to receive(:detectors).and_return([fake_detector])
     allow(fake_detector).to receive(:detect).and_return(fake_templates)
   end
 
   it 'is helpful' do
     allow(subject).to receive(:exit).and_raise(Halp)
-    expect { subject.run(argv: %w(--help)) }.to raise_error(Halp)
+    expect { subject.run(argv: %w[--help]) }.to raise_error(Halp)
   end
 
   it 'may be run via .run!' do

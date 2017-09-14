@@ -81,10 +81,10 @@ describe Travis::PackerBuild::FileDetector do
   it 'detects when file provisioner inputs change' do
     expect(
       subject.detect(
-        %w(
+        %w[
           important/files/critical.txt
           why/was/this/committed/bonus.log
-        ).map do |p|
+        ].map do |p|
           instance_double(
             'Travis::PackerBuild::GitPath',
             path: p,
@@ -92,6 +92,6 @@ describe Travis::PackerBuild::FileDetector do
           )
         end
       ).map(&:name)
-    ).to eql(%w(baseybase veryspecial))
+    ).to eql(%w[baseybase veryspecial])
   end
 end
