@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'English'
 
 require 'json'
@@ -176,25 +178,25 @@ module Travis
           opts.on_tail('-h', '--help', 'Show this message') do
             puts opts unless ENV['QUIET']
             puts "\n\n" unless ENV['QUIET']
-            puts <<-EOF.gsub(/^\s+> ?/, '') unless ENV['QUIET']
-              > Options that accept a `GITFUL_PATH` type expect the string
-              > arguments to contain whitespace-separated tokens of the format:
-              >
-              >     <git-repo-remote>::[prefix[@ref]],[prefix...]
-              >
-              > e.g.:
-              >
-              >     https://github.com/repo/remote.git::cookbooks@master,ci_environment@precise-stable
-              >     git@github.com:other/remote.git::
-              >
-              > This allows for arguments like packer templates paths and cookbook
-              > paths to contain multiple entries for a given git repository,
-              > while retaining a prefix "namespace" for purposes of matching file
-              > paths.
-              >
-              > Leading '/' characters are automatically stripped from repository
-              > prefixes, as git lists files without leading slashes.
-            EOF
+            puts <<~USAGE unless ENV['QUIET']
+              Options that accept a `GITFUL_PATH` type expect the string
+              arguments to contain whitespace-separated tokens of the format:
+
+                  <git-repo-remote>::[prefix[@ref]],[prefix...]
+
+              e.g.:
+
+                  https://github.com/repo/remote.git::cookbooks@master,ci_environment@precise-stable
+                  git@github.com:other/remote.git::
+
+              This allows for arguments like packer templates paths and cookbook
+              paths to contain multiple entries for a given git repository,
+              while retaining a prefix "namespace" for purposes of matching file
+              paths.
+
+              Leading '/' characters are automatically stripped from repository
+              prefixes, as git lists files without leading slashes.
+            USAGE
             exit 0
           end
         end.parse!(argv)

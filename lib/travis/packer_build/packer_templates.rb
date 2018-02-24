@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'packer_template'
 require_relative 'yaml_loader'
 
@@ -46,8 +48,8 @@ module Travis
       def packer_template?(file_contents)
         parsed = Travis::PackerBuild::YamlLoader.load_string(file_contents)
         %w[variables builders provisioners].all? { |k| parsed.include?(k) }
-      rescue => e
-        $stderr.puts "ERROR: #{e}\n#{e.backtrace.join("\n")}" if ENV['DEBUG']
+      rescue StandardError => e
+        warn "ERROR: #{e}\n#{e.backtrace.join("\n")}" if ENV['DEBUG']
         false
       end
     end

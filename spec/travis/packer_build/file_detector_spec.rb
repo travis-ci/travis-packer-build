@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/file_detector'
 
 describe Travis::PackerBuild::FileDetector do
@@ -54,7 +56,7 @@ describe Travis::PackerBuild::FileDetector do
     allow(subject).to receive(:packer_templates)
       .and_return(fake_packer_templates)
     allow(fake_packer_templates_path).to receive(:files) do |regex|
-      if regex.to_s =~ %r{important/files}
+      if regex.to_s.match?(%r{important/files})
         [
           instance_double(
             'Travis::PackerBuild::GitPath', :critical_txt,

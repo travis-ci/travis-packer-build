@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/request'
 
 describe Travis::PackerBuild::Request do

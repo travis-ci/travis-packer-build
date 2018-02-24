@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'yaml'
 
 require 'gh'
@@ -78,7 +80,7 @@ module Travis
 
       def base_commit(branch)
         gh["#{repos_path}/git/refs/heads/#{branch}"]['object']['sha']
-      rescue
+      rescue StandardError
         return ''
       end
 

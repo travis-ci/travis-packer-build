@@ -1,4 +1,4 @@
-require 'thread'
+# frozen_string_literal: true
 
 require_relative 'chef_fake_recipe_methods'
 
@@ -32,8 +32,8 @@ module Travis
                 @included_recipes = []
                 instance_eval(p.show)
                 deps += @included_recipes.map { |n| n.gsub(/::.*/, '') }
-              rescue => e
-                $stderr.puts "ERROR:#{p.namespaced_path}: #{e}" if ENV['DEBUG']
+              rescue StandardError => e
+                warn "ERROR:#{p.namespaced_path}: #{e}" if ENV['DEBUG']
               end
             end
           end

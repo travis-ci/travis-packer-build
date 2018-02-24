@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'faraday'
 
 require 'travis/packer_build/cli'

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/git_remote_path_parser'
 
 describe Travis::PackerBuild::GitRemotePathParser do

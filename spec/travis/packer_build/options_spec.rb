@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/options'
 
 describe Travis::PackerBuild::Options do

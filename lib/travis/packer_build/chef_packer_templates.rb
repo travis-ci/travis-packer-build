@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'chef_dependency_finder'
 require_relative 'packer_templates'
 
@@ -24,9 +26,9 @@ module Travis
       def load_cookbooks_by_template
         loaded = {}
 
-        packer_templates.each do |_, t|
+        packer_templates.each_value do |t|
           Array(t.parsed['provisioners']).each do |provisioner|
-            next unless provisioner['type'] =~ /chef/
+            next unless provisioner['type'].match?(/chef/)
             next if Array(provisioner.fetch('run_list', [])).empty?
             loaded[t] = find_dependencies(
               provisioner['run_list'], cookbook_path

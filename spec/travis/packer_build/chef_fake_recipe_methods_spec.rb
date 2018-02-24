@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/chef_fake_recipe_methods'
 
 describe Travis::PackerBuild::ChefFakeRecipeMethods do
@@ -36,28 +38,28 @@ describe Travis::PackerBuild::ChefFakeRecipeMethods do
   end
 
   it 'does not explode when evaluating recipes' do
-    recipe = <<-EORECIPE.gsub(/^\s+> ?/, '')
-      > include_recipe 'toaster::avocado'
-      > include_recipe 'frivolous::consumerism'
-      >
-      > log('something important') { level :warn }
-      >
-      > cookbook_file 'critical.conf' do
-      >   user 'root'
-      >   group 'root'
-      >   mode 0400
-      > end
-      >
-      > ArbitraryThing.new(node['lolwut'].sers).wheeeeee!
-      >
-      > if Chef::Config[node['is']['it']['not']['true'].that.i.am.fancy]
-      >   ark 'enterprise-monolith' do
-      >     somewhere 'what'
-      >   end
-      > end
-      >
-      > :made_it
-    EORECIPE
+    recipe = <<~RECIPE.gsub(/^\s+> ?/, '')
+      include_recipe 'toaster::avocado'
+      include_recipe 'frivolous::consumerism'
+
+      log('something important') { level :warn }
+
+      cookbook_file 'critical.conf' do
+        user 'root'
+        group 'root'
+        mode 0400
+      end
+
+      ArbitraryThing.new(node['lolwut'].sers).wheeeeee!
+
+      if Chef::Config[node['is']['it']['not']['true'].that.i.am.fancy]
+        ark 'enterprise-monolith' do
+          somewhere 'what'
+        end
+      end
+
+      :made_it
+    RECIPE
     expect(subject.instance_eval(recipe)).to eq(:made_it)
     expect(subject.instance_variable_get(:@included_recipes))
       .to eq(%w[toaster::avocado frivolous::consumerism])
