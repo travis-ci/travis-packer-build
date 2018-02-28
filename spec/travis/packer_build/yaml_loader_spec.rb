@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/yaml_loader'
 
 describe Travis::PackerBuild::YamlLoader do
@@ -10,16 +12,16 @@ describe Travis::PackerBuild::YamlLoader do
   end
 
   it 'loads yaml with erb bits' do
-    yaml = <<-EOYAML.gsub(/^\s+> ?/, '')
-      > <% if true %>
-      > noodles: delicious
-      > <% else %>
-      > noodles: worms
-      > <% end %>
-      > <% %w(olaf marshmallow).each do |s| %>
-      > <%= s %>_composition: snowy
-      > <% end %>
-    EOYAML
+    yaml = <<~YAML
+      <% if true %>
+      noodles: delicious
+      <% else %>
+      noodles: worms
+      <% end %>
+      <% %w(olaf marshmallow).each do |s| %>
+      <%= s %>_composition: snowy
+      <% end %>
+    YAML
     expect(subject.load_string(yaml)).to eq(
       'noodles' => 'delicious',
       'olaf_composition' => 'snowy',

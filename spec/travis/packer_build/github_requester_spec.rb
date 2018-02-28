@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/github_requester'
 require 'travis/packer_build/request'
 

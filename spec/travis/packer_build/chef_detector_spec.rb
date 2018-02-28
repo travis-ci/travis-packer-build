@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/chef_detector'
 
 describe Travis::PackerBuild::ChefDetector do

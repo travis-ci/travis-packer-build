@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/shell_detector'
 
 describe Travis::PackerBuild::ShellDetector do
@@ -57,7 +59,7 @@ describe Travis::PackerBuild::ShellDetector do
     allow(subject).to receive(:packer_templates)
       .and_return(fake_packer_templates)
     allow(fake_packer_templates_path).to receive(:files) do |regex|
-      if regex.source =~ %r{noises/}
+      if regex.source.match?(%r{noises/})
         [
           instance_double(
             'Travis::PackerBuild::GitPath', :boom,

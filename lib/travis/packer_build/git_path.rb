@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'git_path'
 
 module Travis
@@ -50,7 +52,7 @@ module Travis
         unless @files_at[ref]
           repo.with_temp_working do
             repo.checkout(ref)
-            @files_at[ref] = repo.ls_files
+            @files_at[ref] = repo.ls_files('.')
           end
         end
         @files_at[ref]

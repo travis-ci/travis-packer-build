@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/chef_packer_templates'
 
 describe Travis::PackerBuild::ChefPackerTemplates do

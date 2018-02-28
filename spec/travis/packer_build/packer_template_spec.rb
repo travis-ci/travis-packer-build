@@ -1,28 +1,30 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/packer_template'
 
 describe Travis::PackerBuild::PackerTemplate do
   subject do
     described_class.new(
       'lol@wut.git::subdir/mania/happy-dog.yml',
-      <<-EOF.gsub(/^\s+> ?/, '')
-        > variables:
-        >   wheel: ferris
-        >   noodle: farfalle
-        >   patty: falafel
-        > builders:
-        > - type: docker
-        >   name: dooker
-        > provisioners:
-        > - type: file
-        >   source: fancy/path.txt
-        >   destination: /var/tmp/boom
-        > - type: shell
-        >   scripts:
-        >   - runthis/plz
-        > - type: chef-solo
-        >   run_list:
-        >   - howdy::doo
-      EOF
+      <<~YML
+        variables:
+          wheel: ferris
+          noodle: farfalle
+          patty: falafel
+        builders:
+        - type: docker
+          name: dooker
+        provisioners:
+        - type: file
+          source: fancy/path.txt
+          destination: /var/tmp/boom
+        - type: shell
+          scripts:
+          - runthis/plz
+        - type: chef-solo
+          run_list:
+          - howdy::doo
+      YML
     )
   end
 

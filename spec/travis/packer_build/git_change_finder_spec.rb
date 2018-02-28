@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/git_change_finder'
 
 describe Travis::PackerBuild::GitChangeFinder do

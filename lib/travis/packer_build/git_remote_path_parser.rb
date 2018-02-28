@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'logger'
 require 'tmpdir'
 
@@ -17,7 +19,7 @@ module Travis
       def parse(string)
         entries = string.split(/\s+/).map do |segment|
           repo_remote, paths = segment.split('::')
-          paths = '/' unless paths
+          paths ||= '/'
           local_clone = File.join(repo_remote, '.git')
 
           if File.directory?(local_clone)
@@ -39,7 +41,7 @@ module Travis
 
           paths.split(',').map do |path_entry|
             entry, ref = path_entry.split('@').map(&:strip)
-            ref = '@' unless ref
+            ref ||= '@'
             Travis::PackerBuild::GitPath.new(git, entry.sub(%r{^/}, ''), ref)
           end
         end
@@ -60,7 +62,7 @@ module Travis
       end
 
       def clone_basename(repo_remote)
-        URI.escape(repo_remote, '@:/.') + '.git'
+        repo_remote.gsub(%r{[ @:/\.]}) { |c| '%' + c.ord.to_s(16).upcase }
       end
 
       def git_logger

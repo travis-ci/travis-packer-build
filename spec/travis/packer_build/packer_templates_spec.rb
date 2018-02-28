@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/packer_templates'
 
 describe Travis::PackerBuild::PackerTemplates do
@@ -37,7 +39,7 @@ describe Travis::PackerBuild::PackerTemplates do
 
   before :each do
     allow(fake_packer_templates_path).to receive(:files) do |pattern|
-      pattern.source =~ /\\\.\(yml\|json\)\$/ ? template_files : []
+      pattern.source.match?(/\\\.\(yml\|json\)\$/) ? template_files : []
     end
   end
 

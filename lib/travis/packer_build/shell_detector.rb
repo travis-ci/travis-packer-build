@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'packer_templates'
 
 module Travis
@@ -13,7 +15,7 @@ module Travis
         filenames = git_paths.map(&:namespaced_path)
         to_trigger = []
 
-        packer_templates.each do |_, template|
+        packer_templates.each_value do |template|
           log.info "Detecting type=shell template=#{template.name}"
           to_trigger << template if filenames.include?(template.filename)
           intersection = provisioner_files(

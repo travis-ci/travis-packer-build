@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'travis/packer_build/chef_dependency_finder'
 
 describe Travis::PackerBuild::ChefDependencyFinder do
@@ -21,22 +23,22 @@ describe Travis::PackerBuild::ChefDependencyFinder do
       .with(%r{.+/tofurkey/recipes/[^/]+\.rb})
       .and_return(tofurkey_recipes)
     allow(tofurkey_recipes_default).to receive(:show)
-      .and_return(<<-EOF.gsub(/^\s+> ?/, ''))
-        > include_recipe 'beancurd::firm'
-        > include_recipe 'imagination'
-      EOF
+      .and_return(<<~RECIPE)
+        include_recipe 'beancurd::firm'
+        include_recipe 'imagination'
+      RECIPE
     allow(tofurkey_recipes_unicorn).to receive(:show)
-      .and_return(<<-EOF.gsub(/^\s+> ?/, ''))
-        > include_recipe 'beancurd::enchanted'
-        >
-        > log('whatebber') { level :hello }
-        >
-        > cookbook_file 'horns.txt' do
-        >   user 'beelzebub'
-        > end
-        >
-        > 1 / 0
-      EOF
+      .and_return(<<~RECIPE)
+        include_recipe 'beancurd::enchanted'
+
+        log('whatebber') { level :hello }
+
+        cookbook_file 'horns.txt' do
+          user 'beelzebub'
+        end
+
+        1 / 0
+      RECIPE
     allow(tofurkey_recipes_unicorn).to receive(:namespaced_path)
       .and_return('git@nope:ohai.git::cookbooks/tofurkey/recipes/unicorn.rb')
   end

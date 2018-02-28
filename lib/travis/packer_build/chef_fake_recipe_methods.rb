@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Travis
   module PackerBuild
     module ChefFakeRecipeMethods
@@ -52,6 +54,7 @@ module Travis
       class BlackHole
         def initialize(*); end
 
+        # rubocop:disable Style/MethodMissing
         def method_missing(*)
           self
         end
@@ -59,6 +62,7 @@ module Travis
         def self.method_missing(*)
           self
         end
+        # rubocop:enable Style/MethodMissing
       end
 
       module Chef
@@ -76,9 +80,11 @@ module Travis
           fetch(key)
         end
 
+        # rubocop:disable Style/MethodMissing
         def method_missing(key)
           self[key]
         end
+        # rubocop:enable Style/MethodMissing
       end
     end
   end
