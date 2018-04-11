@@ -14,6 +14,10 @@ module Travis
         templates_by_name.each(&block)
       end
 
+      def each_value(&block)
+        templates_by_name.each_value(&block)
+      end
+
       private
 
       attr_reader :packer_templates_path
