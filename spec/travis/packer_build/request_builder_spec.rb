@@ -48,8 +48,6 @@ describe Travis::PackerBuild::RequestBuilder do
   end
 
   let(:requests) { subject.build(fake_templates) }
-
-  # rubocop:disable Performance/HashEachMethods
   it 'has a branch' do
     requests.each do |_, request|
       expect(request.branch).to_not be_empty
@@ -78,7 +76,6 @@ describe Travis::PackerBuild::RequestBuilder do
       )
     end
   end
-  # rubocop:enable Performance/HashEachMethods
 
   it 'contains an env matrix with each builder and template' do
     expect(requests.map { |_, r| r.config['env']['matrix'] }.sort)
