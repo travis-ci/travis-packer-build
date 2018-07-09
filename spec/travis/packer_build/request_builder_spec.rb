@@ -70,7 +70,7 @@ describe Travis::PackerBuild::RequestBuilder do
     requests.each do |_, request|
       expect(request.config).to include(
         'language' => 'generic',
-        'dist' => 'trusty',
+        'dist' => 'xenial',
         'group' => 'edge',
         'sudo' => true
       )
