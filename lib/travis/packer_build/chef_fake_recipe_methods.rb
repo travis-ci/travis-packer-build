@@ -54,7 +54,8 @@ module Travis
       class BlackHole
         def initialize(*); end
 
-        # rubocop:disable Style/MethodMissing
+        # rubocop:disable Style/MethodMissingSuper
+        # rubocop:disable Style/MissingRespondToMissing
         def method_missing(*)
           self
         end
@@ -62,7 +63,8 @@ module Travis
         def self.method_missing(*)
           self
         end
-        # rubocop:enable Style/MethodMissing
+        # rubocop:enable Style/MethodMissingSuper
+        # rubocop:enable Style/MissingRespondToMissing
       end
 
       module Chef
@@ -80,11 +82,13 @@ module Travis
           fetch(key)
         end
 
-        # rubocop:disable Style/MethodMissing
+        # rubocop:disable Style/MethodMissingSuper
+        # rubocop:disable Style/MissingRespondToMissing
         def method_missing(key)
           self[key]
         end
-        # rubocop:enable Style/MethodMissing
+        # rubocop:enable Style/MethodMissingSuper
+        # rubocop:enable Style/MissingRespondToMissing
       end
     end
   end

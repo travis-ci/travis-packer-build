@@ -41,7 +41,7 @@ module Travis
         ret['branch'] ||= template.name
         ret['config'] ||= {}
         ret['config']['language'] ||= 'generic'
-        ret['config']['dist'] ||= 'trusty'
+        ret['config']['dist'] ||= 'xenial'
         ret['config']['group'] ||= 'edge'
 
         ret['config']['sudo'] =
