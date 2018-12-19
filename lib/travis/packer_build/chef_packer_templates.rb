@@ -30,6 +30,7 @@ module Travis
           Array(t.parsed['provisioners']).each do |provisioner|
             next unless provisioner['type'].match?(/chef/)
             next if Array(provisioner.fetch('run_list', [])).empty?
+
             loaded[t] = find_dependencies(
               provisioner['run_list'], cookbook_path
             )

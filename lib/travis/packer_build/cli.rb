@@ -66,6 +66,7 @@ module Travis
 
       def setup(argv)
         return if @setup
+
         parse_args(argv)
         options.packer_templates_path ||= git_remote_path_parser.parse(
           default_packer_templates_path_string

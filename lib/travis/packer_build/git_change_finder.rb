@@ -67,6 +67,7 @@ module Travis
 
       def root_repo_dir
         return root.dir if root.dir && File.exist?(root.dir)
+
         root.dir = clone_root_repo
       end
 
@@ -90,6 +91,7 @@ module Travis
 
       def clone_tmp
         return @clone_tmp if @clone_tmp && File.directory?(@clone_tmp)
+
         @clone_tmp = File.join(Dir.tmpdir, 'travis-packer-build')
         FileUtils.mkdir_p(@clone_tmp)
         @clone_tmp

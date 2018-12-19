@@ -14,6 +14,7 @@ module Travis
 
       def detect(git_paths)
         return [] if git_paths.empty?
+
         filenames = git_paths.map(&:namespaced_path)
         to_trigger = []
 
@@ -24,6 +25,7 @@ module Travis
           run_list_cookbooks.each do |cb|
             cb_files = Array(cookbooks.files(cb)).map(&:namespaced_path)
             next if cb_files.empty?
+
             unless (filenames & cb_files).empty?
               to_trigger << template
               log.info "Detected type=chef template=#{template.name}"

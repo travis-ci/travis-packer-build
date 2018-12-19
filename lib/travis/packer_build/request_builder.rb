@@ -98,6 +98,7 @@ module Travis
       def load_body_tmpl(hashstring)
         return hashstring if hashstring.respond_to?(:key)
         return YAML.load_file(hashstring) if File.exist?(hashstring)
+
         YAML.safe_load(hashstring)
       end
     end
