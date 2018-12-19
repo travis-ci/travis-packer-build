@@ -69,7 +69,7 @@ module Travis
           ret['config']['script'] = [
             <<~SCRIPT.split("\n").map(&:strip).join(' ')
               if [[ %{template_filename} =~ yml ]] ; then
-                packer build -only=${BUILDER} <(
+                packer build -timestamp-ui -only=${BUILDER} <(
                   ruby -rjson -ryaml -rerb -e "
                     puts JSON.pretty_generate(
                       YAML.load(ERB.new(STDIN.read).result)
