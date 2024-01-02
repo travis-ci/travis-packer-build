@@ -7,3 +7,5 @@ cache: bundler
 script:
 - bundle exec rake
 - bundle exec ruby ./exe/travis-packer-build --help
+before_install:
+  - gem install rubygems-update -v 3.4.22
